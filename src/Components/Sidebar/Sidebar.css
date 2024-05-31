@@ -1,0 +1,84 @@
+.sidebar {
+    height: 100%;
+    width: 50px; /* Lebar sidebar saat tertutup */
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #333;
+    transition: width 0.5s;
+    z-index: 1;
+  }
+  
+  .sidebar.active {
+    width: 250px; /* Lebar sidebar saat terbuka */
+  }
+  
+  .sidebar-header {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .toggle-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .toggle-btn .icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-image: url('../../Assets/images/sidebar-icon.png'); /* Ganti dengan path gambar sidebar */
+    background-size: cover;
+  }
+  
+  .toggle-btn .open-icon {
+    background-position: 0px 0px; /* Koordinat icon saat sidebar terbuka */
+  }
+  
+  .toggle-btn .close-icon {
+    background-position: -24px 0px; /* Koordinat icon saat sidebar tertutup */
+  }
+  
+  .menu ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .menu ul li {
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .menu ul li a {
+    text-decoration: none;
+    color: #fff;
+    transition: background-color 0.3s;
+  }
+  
+  .menu ul li a:hover {
+    background-color: #555;
+  }
+  
+  .user-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: #111;
+    padding: 10px 0;
+    transition: all 0.3s;
+  }
+  
+  .user-info a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  .user-info a:hover {
+    text-decoration: underline;
+  }
+  

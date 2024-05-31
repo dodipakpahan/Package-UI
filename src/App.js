@@ -1,25 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginPage from "./Pages/Login";
+import DashboardPage from "./Pages/Dashboard";
+import PackagePage from "./Pages/Packages";
+import DetailPAckagePage from "./Pages/Packages/Detail";
+import PackageProcessPage from "./Pages/PackageProcess";
+import DetailPAckageProcessPage from "./Pages/PackageProcess/Detail";
+import PackageStep from "./Pages/Packages/PackageStep";
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage/>}/>
+        <Route path="/Dashboard" element={<DashboardPage/>}/>
+        <Route path="/Package" element={<PackagePage/>}/>
+        <Route path="/Package/Detail" element={<DetailPAckagePage/>}/>
+        <Route path="/PackageProcess" element={<PackageProcessPage/>}/>
+        <Route path="/PackageProcess/Detail" element={<DetailPAckageProcessPage/>}/>
+        <Route path="/Package/Step" element={<PackageStep/>}/>
+      </Routes>
+    </BrowserRouter>
+  )
 }
-
-export default App;

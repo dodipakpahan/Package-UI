@@ -1,0 +1,17 @@
+.pagination{
+    justify-content: center;
+}
+
+.pagination-head{
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.pagination-detail{
+    display: flex;
+    /* flex: 1; */
+    flex-wrap: nowrap;
+    padding-right: 10px
+}

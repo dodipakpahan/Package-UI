@@ -1,38 +1,192 @@
-.App {
-  text-align: center;
+html * {
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* thead {
+  background-color: rgb(189, 189, 189) !important;
+  font-weight: bolder;
+} */
+
+.btn-danger {
+  background-color: rgb(166, 0, 0) !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* .btn-secondary {
+  background-color: #fff !important;
+  color: rgba(3, 30, 103, 1) !important;
+  --bs-btn-hover-color: #8dbcf3 !important;
+} */
+
+
+/* .btn-info {
+  background-color: rgba(3, 30, 103, 1) !important;
+  font-weight: bold !important;
+} */
+
+.btn-primary {
+  background-color: rgba(3, 30, 103, 1) !important;
+  font-weight: bold !important;
 }
 
-.App-header {
-  background-color: #282c34;
+#root {
+  --bs-primary: rgba(3, 30, 103, 1) !important;
+  --bs-blue: rgba(3, 30, 103, 1) !important;
+  --bs-link-color: rgba(3, 30, 103, 1) !important;
+  --bs-primary-rgb: rgba(3, 30, 103, 1) !important;
+  --bs-danger: rgb(227, 0, 0) !important;
+  background-repeat: repeat-y;
+  background-attachment: fixed;
+  background-size: cover;
+  background-blend-mode: multiply !important;
   min-height: 100vh;
+}
+
+.pagination {
+  color: rgba(3, 30, 103, 1) !important;
+  --bs-pagination-active-bg: rgba(3, 30, 103, 1) !important;
+  --bs-pagination-color: rgba(3, 30, 103, 1) !important;
+}
+
+
+.table-header {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  background-color: #bcceff;
+}
+
+.table-header-content {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  border: #282c34;
+  border-width: 0.5px;
+  border-style: solid;
+  padding: 10px;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  font-weight: bold;
 }
 
-.App-link {
-  color: #61dafb;
+.table-body {
+  display: flex;
+  flex-direction: row;
+  background-color: #efeef7;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.table-body-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  width: max-content;
+  height: max-content;
+  max-height: 72px;
+  min-height: 72px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+  align-self: flex-start;
+  flex-direction: row;
+  border: #282c34;
+  border-width: 0.5px;
+  border-style: solid;
+  padding: 10px;
+}
+
+/* .table-body-content:hover {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  width: max-content;
+  height: max-content;
+  max-height: max-content;
+  min-height: 72px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+  align-self: flex-start;
+  flex-direction: row;
+  border: #282c34;
+  border-width: 0.5px;
+  border-style: solid;
+  padding: 10px;
+} */
+#button-color button {
+  background-color: transparent !important;
+}
+
+.master-table tbody {
+  width: 100%;
+}
+
+
+.master-table-container-outer {
+  display: flex;
+  width: 90%;
+  flex-direction: column;
+  border-width: 2px;
+  border-color: rgba(3, 30, 103, 1);
+  border-radius: 10px;
+  border-style: solid;
+  background-color: rgba(219, 235, 255, 0.9) !important;
+}
+
+.master-table-container-inner {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  border-width: 2px;
+  border-color: rgba(3, 30, 103, 1);
+  border-radius: 10px;
+  border-style: solid;
+}
+
+.master-table-title-header {
+  display: flex;
+  flex-direction: row;
+  flex: 0;
+  background-color: rgba(3, 30, 103, 1);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  color: #fff;
+  align-items: center;
+  font-size: 36px;
+}
+
+.master-table-title-caption-container {
+  display: flex;
+  flex: 8;
+}
+
+.master-table-searchbar-container {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: flex-end;
+  /* width: 50%; */
+  padding-bottom: 10px;
+}
+
+.master-table-searchbar-textbox {
+  display: flex;
+  width: 30%;
+  /* flex: 8; */
+  justify-content: flex-end;
+}
+
+.master-table-searchbar-button {
+  display: flex;
+  /* flex: 0; */
+  padding-left: 10px;
+}
+
+.master-table-title-action-container {
+  display: flex;
+  /* flex: 3; */
+  padding: 10px;
+  justify-content: flex-end;
+}
+
+.master-table-title-action-container button {
+  /* background-color: #ebebeb !important; */
 }
