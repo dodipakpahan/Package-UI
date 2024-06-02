@@ -445,3 +445,27 @@ export const getPackageStep = async (token, packageId) => {
     }
 }
 
+
+
+export const getPackageStepById = async (token, stepId) => {
+    try {
+        let response = await axios.get(`${Config.API_ENDPOINT}/api/Package/getPackageStepById`, {
+            params: {
+                id: stepId
+            },
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.data[0]);
+        } else {
+            return ([]);
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+

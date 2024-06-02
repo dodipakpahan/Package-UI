@@ -7,6 +7,7 @@ import DetailPAckagePage from "./Pages/Packages/Detail";
 import PackageProcessPage from "./Pages/PackageProcess";
 import DetailPAckageProcessPage from "./Pages/PackageProcess/Detail";
 import PackageStep from "./Pages/Packages/PackageStep";
+import PackageStepDetailPage from "./Pages/Packages/PackageStep/Detail";
 
 export default function App() {
   return (
@@ -19,6 +20,8 @@ export default function App() {
         <Route path="/PackageProcess" element={<PackageProcessPage/>}/>
         <Route path="/PackageProcess/Detail" element={<DetailPAckageProcessPage/>}/>
         <Route path="/Package/Step" element={<PackageStep/>}/>
+        <Route path="/PackageStep/Detail" element={<PackageStepDetailPage/>}/>
+
       </Routes>
     </BrowserRouter>
   )

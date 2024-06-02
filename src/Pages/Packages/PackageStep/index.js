@@ -169,7 +169,7 @@ export default function PackageStep() {
                                                 <div style={{ flex: 1, justifyContent: "center" }} className="table-body-content">
                                                     <div style={{ padding: 5 }}>
                                                         <Button disabled={Number(steps.package_step)<index} variant="primary" onClick={() => {
-                                                            navigate("/Package/Detail", { state: { packageId: steps.id } });
+                                                            navigate("/PackageStep/Detail", { state: { stepId: steps.id, orderNumber:steps.order_number, packageId:steps.package_id} });
                                                         }}><EyeFill />
                                                         </Button>
                                                     </div></div>
