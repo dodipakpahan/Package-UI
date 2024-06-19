@@ -999,7 +999,7 @@ export default function PackageStepDetailPage() {
                                                         }} value={command.note} as={"textarea"} rows={3} required></Form.Control>
                                                     </Form.Group>
 
-                                                    <Button hidden={documentStatus === "Approved"} type="submit">Setujui</Button>
+                                                    <Button hidden={documentStatus === "Approved"} type="submit">Setuju</Button>
                                                 </Form>
 
                                             </div>

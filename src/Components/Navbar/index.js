@@ -6,6 +6,7 @@ import { Button } from 'react-bootstrap';
 import { getNotification, readNotification } from '../../Helpers/ApplicationHelper';
 import moment from 'moment';
 import { Sidebar, Menu, MenuItem, SubMenu, sidebarclassNamees } from 'react-pro-sidebar';
+import weblogo from "../../Assets/images/lift.png"
 
 import { useCookies } from 'react-cookie';
 
@@ -45,10 +46,13 @@ function Navbar({
             <div
                 className={`notification-item ${notification.is_read ? 'read' : 'unread'}`}
                 onClick={(e) => {
+                    console.log(data)
                     markAsRead(notification.id)
                     markAsReadNotification(data.id);
-                    if (data.package_step_id === null) {
+                    if (data.path === null) {
                         navigate("/Package/Detail", { state: { packageId: data.package_id } })
+                    }else{
+                        navigate(`${data.path}`, {state:{stepId:data.package_step_id, packageId: data.package_id}})
                     }
                 }
 
@@ -110,7 +114,7 @@ function Navbar({
                 flexDirection: "row",
                 width: "100%",
                 flexWrap: "nowrap",
-                backgroundColor: "#0b2948",
+                backgroundColor: "#034ea2",
                 height: 70,
                 color: "#fff"
             }}>
@@ -121,13 +125,22 @@ function Navbar({
                     alignItems: "center",
                 }}>
                     <button style={{
-                        backgroundColor: "#0b2948",
+                        backgroundColor: "#034ea2",
                         justifyContent: 'left',
                         width: 100
                     }} onClick={() => {
                         setIsOpen(!isOpen);
                     }}><ListTask size={30} /></button>
-                    <h1>{pageLogo} {pageName}</h1>
+                  <h1>Silikon3</h1>
+                    {/* <div style={{
+                        display:"flex",
+                        flexDirection:"row",
+                        flexWrap:"nowrap"
+                    }}>
+                        <div style={{display:"flex", alignItems:"center"}}><img src={weblogo} alt="Icon" style={{ width: '50px', height: '50px' }} /></div>
+                        <div style={{paddingRight:10}}></div>
+                        <div style={{display:"flex", alignItems:"center", fontSize:25}}>{pageName}</div>
+                    </div> */}
                 </div>
                 <div style={{
                     display: "flex",
@@ -135,7 +148,7 @@ function Navbar({
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "flex-end",
-                    marginRight: 300
+                    marginRight: 100
                 }}>
                     <div className="notification-icon" onClick={toggleDropdown}>
                         <Bell />

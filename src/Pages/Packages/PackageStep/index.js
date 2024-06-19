@@ -3,14 +3,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
 import { FilePlusFill, Search, ArrowClockwise, BoxSeam, PencilFill, Trash, Download, HourglassSplit, EyeFill } from "react-bootstrap-icons";
 import "../../../App.css"
-import { Container } from "react-bootstrap";
+import { Container, Table } from "react-bootstrap";
 import { isTokenValid, getPackageStep } from "../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../Components/Sidebar";
 import LoadingAnimation from "../../../Components/Loading";
 import { useCookies } from "react-cookie";
 import moment from "moment";
+import webLogo from "../../../Assets/images/log-silikon-removebg-preview.png"
 import Paginations from "../../../Components/Pagination";
 import Navbar from "../../../Components/Navbar";
+import backLogo from "../../../Assets/images/leftArrow.png"
 
 export default function PackageStep() {
     const [cookies, setCookie] = useCookies(["token"]);
@@ -94,7 +96,6 @@ export default function PackageStep() {
         try {
 
             let response = await getPackageStep(cookies.token, location.state.packageId);
-            console.log(response);
             setListStep(response)
             setIsLoading(false);
         } catch (exception) {
@@ -137,6 +138,22 @@ export default function PackageStep() {
                         // alignSelf: "center"
                     }} >
                         <div style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            backgroundImage: `url(${webLogo})`,
+                            backgroundSize: "25%",
+                            backgroundRepeat: "no-repeat",
+                            backgroundPosition: "center",
+                            backgroundPositionX: "center",
+                            opacity: 0.1,
+                            pointerEvents: "none",
+                            zIndex: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.5)"
+                        }}></div>
+                        <div style={{
                             display: "flex",
                             flexDirection: "column",
                             // borderStyle: "solid",
@@ -145,12 +162,58 @@ export default function PackageStep() {
 
                         }}>
 
+                            <div style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "nowrap",
+                                borderBottomStyle: "inset"
+                            }}>
+                                <div onClick={() => {
+                                    navigate('/Package');
+                                }} style={{ display: "flex", alignItems: "center", cursor: "pointer" }}><img src={backLogo} alt="Icon" style={{ width: '50px', height: '50px' }} /></div>
+                                <div style={{ paddingRight: 10 }}></div>
+                                <div style={{ display: "flex", alignItems: "center", fontSize: 35 }}>Tahapan Paket</div>
+                            </div>
+
+                            <div style={{ paddingBottom: 30 }}></div>
 
                             <div className="master-table-inner-container">
 
 
+                                <Table className="packageTable" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Tahapan</th>
+                                            <th>Status Tahapan</th>
+                                            <th>Detail</th>
 
-                                <div className="table-container">
+                                        </tr>
+                                    </thead>
+                                    {listStep.map((steps, index) => {
+                                        return (
+                                            <tbody key={steps.id}>
+                                                <tr>
+                                                    <td style={{textAlign:"center"}} >{index + 1}</td>
+                                                    <td >{steps.step_name}</td>
+                                                    <td style={{textAlign:"center"}}>{steps.status_name}</td>
+                                                    <td >
+                                                        <div className="buttonContainer" >
+                                                            <Button disabled={Number(steps.package_step) < index || !steps.package_step} variant="primary" onClick={() => {
+                                                                navigate(`${steps.path}`, { state: { stepId: steps.id, orderNumber: steps.order_number, packageId: steps.package_id } });
+                                                            }}><EyeFill />
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        )
+                                    }
+                                    )
+                                    }
+                                </Table>
+                                {/* <div className="table-container">
                                     <div className="table-header">
                                         <div style={{ flex: 0.5, justifyContent: "center" }} className="table-header-content">#</div>
                                         <div style={{ flex: 5, justifyContent: "center" }} className="table-header-content">Nama Tahapan</div>
@@ -159,8 +222,7 @@ export default function PackageStep() {
 
 
                                     </div>
-                                    {
-                                        listStep.map((steps, index) => {
+                                    {listStep.map((steps, index) => {
                                             return (<div className="table-body" key={index}>
                                                 <div style={{ flex: 0.5, justifyContent: "center" }} className="table-body-content"><p>{index + 1}</p></div>
                                                 <div style={{ flex: 5 }} className="table-body-content"><p>{steps.step_name}</p></div>
@@ -168,8 +230,8 @@ export default function PackageStep() {
 
                                                 <div style={{ flex: 1, justifyContent: "center" }} className="table-body-content">
                                                     <div style={{ padding: 5 }}>
-                                                        <Button disabled={Number(steps.package_step)<index} variant="primary" onClick={() => {
-                                                            navigate("/PackageStep/Detail", { state: { stepId: steps.id, orderNumber:steps.order_number, packageId:steps.package_id} });
+                                                        <Button disabled={Number(steps.package_step) < index || !steps.package_step} variant="primary" onClick={() => {
+                                                            navigate(`${steps.path}`, { state: { stepId: steps.id, orderNumber: steps.order_number, packageId: steps.package_id } });
                                                         }}><EyeFill />
                                                         </Button>
                                                     </div></div>
@@ -180,7 +242,7 @@ export default function PackageStep() {
                                         }
                                         )
                                     }
-                                </div>
+                                </div> */}
                                 <div style={{
                                     paddingTop: 20,
                                 }}>

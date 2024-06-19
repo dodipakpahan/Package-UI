@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import './Sidebar.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { House, BoxSeam, ListTask, Hourglass, BoxArrowInLeft } from "react-bootstrap-icons";
+import { House, BoxSeam, ListTask, Hourglass, BoxArrowInLeft, C } from "react-bootstrap-icons";
 
 
 import { Sidebar, Menu, MenuItem, SubMenu, sidebarClasses } from 'react-pro-sidebar';
 import { Button } from 'react-bootstrap';
 import { useCookies } from 'react-cookie';
 import webLogo from "../../Assets/images/logo-dki-jakarta-1-removebg-preview.png"
+import craneLogo from "../../Assets/images/lift.png"
+import craneLogo2 from "../../Assets/images/tower-crane.png"
+import home from "../../Assets/images/home.png"
+import userLogo from "../../Assets/images/userLogo.png"
 
 function SideNavigationBar({
   isOpen,
@@ -29,12 +33,13 @@ function SideNavigationBar({
 
   return (
     <>
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
-        <Sidebar
+      <div style={{ display: 'flex', minHeight: '100vh', borderRightStyle:"solid",borderWidth:3, borderColor:"#f4f6f9" }}>
+        <Sidebar width='200px'
           rootStyles={{
             [`.${sidebarClasses.container}`]: {
-              backgroundColor: '#0b2948',
-              color: '#8ba1b7',
+              // backgroundColor: '#0b2948',
+              backgroundColor:"#ffffff",
+              color: 'black',
             },
           }}
           collapsed={isOpen}
@@ -46,6 +51,7 @@ function SideNavigationBar({
           }}>
             <img src={webLogo} width={"100%"}></img>
           </div>
+          <div style={{paddingBottom:30}}></div>
 
 
           <Menu theme={'dark'} mode={'inline'}
@@ -67,13 +73,20 @@ function SideNavigationBar({
           //   },
           // }}
           >
-            <MenuItem component={<Link to="/Dashboard" />} icon={<House size={30} />}> Dashboard</MenuItem>
+            <MenuItem component={<Link to="/Dashboard" />} icon={<img src={home} alt="Icon" style={{ width: '35px', height: '35px', color:"white" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Beranda</div></MenuItem>
             {/* <SubMenu label="Menu 1">
             <MenuItem> Pie charts </MenuItem>
             <MenuItem> Line charts </MenuItem>
           </SubMenu> */}
-            <MenuItem component={<Link to="/Package" />} icon={<BoxSeam size={30} />}> Paket</MenuItem>
-            <MenuItem component={<Link to="/PackageProcess" />} icon={<Hourglass size={30} />}> Proses Paket</MenuItem>
+            <MenuItem component={<Link to="/Package" />} icon={<img src={craneLogo} alt="Icon" style={{ width: '35px', height: '35px', color:"white", alignItems:"center" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Paket</div></MenuItem>
+            
+            {
+              cookies.userRole === 1 &&
+            <MenuItem component={<Link to="/UserAccount" />} icon={<img src={userLogo} alt="Icon" style={{ width: '35px', height: '35px', color:"white", alignItems:"center" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Akun </div></MenuItem>
+
+              
+            }
+              {/* <MenuItem component={<Link to="/PackageProcess" />} icon={<Hourglass size={30} />}> Proses Paket</MenuItem> */}
 
             {/* <div style={{
               position: "absolute",

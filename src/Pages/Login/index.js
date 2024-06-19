@@ -6,6 +6,8 @@ import { isTokenValid } from "../../Helpers/ApplicationHelper";
 import axios from "axios";
 import config from "../../Config/config";
 import { Button, Form } from "react-bootstrap";
+import webLogo from "../../Assets/images/log-silikon-removebg-preview.png"
+
 
 
 export default function LoginPage() {
@@ -62,7 +64,7 @@ export default function LoginPage() {
                 password: password
             });
             console.log(response);
-            if (response.data.error_code === 0 ) {
+            if (response.data.error_code === 0) {
                 let loginData = response.data.data;
                 setCookie("token", loginData.token, { path: "/" });
                 setCookie("userId", loginData.user_account_id, { path: "/" });
@@ -91,40 +93,48 @@ export default function LoginPage() {
 
     return (
         <>
+
             <div class="loginPage">
-                <div class="login-container">
-                    <h2>Welcome Back!</h2>
-                    <Form onSubmit={(e) => {
-                        e.preventDefault();
-                        login()
-                    }}>
-                        <div class="form-group">
-                            <label className="label" for="username">Username</label>
-                            <input type="text" id="username" name="username" onChange={(e)=>{
-                                setUsername(e.target.value)
-                            }} required />
-                        </div>
-                        <div class="form-group">
-                            <label className="label" for="password">Password</label>
-                            <input type="password" id="password" name="password" required onChange={(e)=>{
-                                setPassword(e.target.value)
-                            }} />
-                        </div>
-                        {
-                            errorMessage && <p style={{ color: "red", textAlign:'center' }}>{errorMessage}</p>
-                        }
-                        <div style={{
-                            display:"flex",
-                            justifyContent:"center",
-                            alignItems:"center",
-                            width:"100%"
+                <div className="loginDesign">
+                    <img src={webLogo} />
+                    <div style={{paddingBottom:10}}></div>
+                    <div class="login-container">
+
+                        {/* <h2>Welcome Back!</h2> */}
+                        <Form onSubmit={(e) => {
+                            e.preventDefault();
+                            login()
                         }}>
 
-                            <Button className="button" type="submit">Login</Button>
+                            <div class="form-group">
+                                <label className="label" for="username">Username</label>
+                                <input type="text" id="username" name="username" onChange={(e) => {
+                                    setUsername(e.target.value)
+                                }} required />
+                            </div>
+                            <div class="form-group">
+                                <label className="label" for="password">Password</label>
+                                <input type="password" id="password" name="password" required onChange={(e) => {
+                                    setPassword(e.target.value)
+                                }} />
+                            </div>
+                            {
+                                errorMessage && <p style={{ color: "red", textAlign: 'center' }}>{errorMessage}</p>
+                            }
+                            <div style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                width: "100%"
+                            }}>
 
-                        </div>
-                    </Form>
+                                <Button className="button" type="submit">Login</Button>
+
+                            </div>
+                        </Form>
+                    </div>
                 </div>
+
             </div>
         </>
     )

@@ -5,13 +5,15 @@ import {
     Search, BoxSeam, PencilFill, Trash, Download, FileWord, FileEarmarkText, ChevronDoubleLeft, ChevronDoubleRight,
     FilePlusFill, ArrowClockwise, GearWideConnected, EyeFill, Eye, InfoCircleFill, ZoomIn, ZoomOut, AspectRatioFill,
     XSquareFill,
-    CheckLg
+    CheckLg,
+    FilePdf
 } from "react-bootstrap-icons";
 import "../../../App.css"
 import { Container } from "react-bootstrap";
 import {
     isTokenValid, insertUpdatePackage, getPackageById, convertBase64, getPackageStatus, getPackageDocument, getPackageDocumentById,
-    deletePackageDocument, insertUpdatePackageDocument, getCountPackageDocument, updatePackageDocumentStatus, getPackageCommand
+    deletePackageDocument, insertUpdatePackageDocument, getCountPackageDocument, updatePackageDocumentStatus, getPackageCommand,
+    getUserAccount
 } from "../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../Components/Sidebar";
 import LoadingAnimation from "../../../Components/Loading";
@@ -19,10 +21,11 @@ import { useCookies } from "react-cookie";
 import moment from "moment";
 import { Document, Page, pdfjs } from 'react-pdf';
 import Navbar from "../../../Components/Navbar";
+import webLogo from "../../../Assets/images/log-silikon-removebg-preview.png"
 import Select from "react-select";
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-
+import backLogo from "../../../Assets/images/leftArrow.png"
 import { triggerBase64Download } from "../../../Helpers/Base64Downloader";
 import ContainerBox from "../../../Components/ContainerBox";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -31,10 +34,13 @@ export default function DetailPAckagePage() {
     const [cookies, setCookie] = useCookies(["token"]);
     const [listStatus, setListStatus] = useState([]);
     const navigate = useNavigate();
+    const [listProvider, setListProvider] = useState([]);
     const [uploadButton, setUploadButton] = useState(false);
     const [listDocument, setListDocument] = useState([]);
+    const [selectedProvider, setSelectedProvide] = useState({});
     const location = useLocation();
     const [approveId, setApproveId] = useState("");
+    const [command, setCommand] = useState("");
     const [statutApproval, setStatusApproval] = useState("");
     const [documentStatus, setDocumentStatus] = useState("");
     const [page, setPage] = useState(0);
@@ -48,24 +54,46 @@ export default function DetailPAckagePage() {
     const [removeId, setRemoveId] = useState("");
     const [documentId, setDocumentId] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const [formattedAmount1, setFormatterAmmount1] = useState("")
+    const [formattedAmount2, setFormatterAmmount2] = useState("")
+    const [formattedAmount3, setFormatterAmmount3] = useState("")
     const [isSearched, setIsSearched] = useState(0);
     const [disabledButton, setDisabledButton] = useState(false);
     const [packageId, setPackageId] = useState("");
     const [packages, setPackages] = useState({
         id: 0,
         package_name: "",
-        start_date: "",
-        end_date: "",
+        start_date: null,
+        end_date: null,
         selection_methode: "",
-        package_status: null
+        package_status: null,
+        pagu: null,
+        hps: null,
+        kontrak: null,
+        ppk_name: "",
+        provider_name: null,
+        planing_consultant: "",
+        supervising_consultan: "",
+        contract_number: "",
+        upload_document: "",
+        command:""
     })
 
-    const [command, setCommand] = useState({
-        id: 0,
-        package_id: location.state.packageId,
-        note: "",
-        document_id: null
-    })
+    // const [command, setCommand] = useState({
+    //     id: 0,
+    //     package_id: location.state.packageId,
+    //     note: "",
+    //     document_id: null
+    // });
+
+    const customStyles = {
+        menu: (provided) => ({
+            ...provided,
+            zIndex: 1,
+        }),
+    };
+
+
 
     const [showDocumentUploadModal, setShowDocumentUploadModal] = useState(false);
     const [showDocumentDetailModal, setShowDocumentDetailModal] = useState(false);
@@ -105,8 +133,8 @@ export default function DetailPAckagePage() {
             if (!isAuthenticated)
                 navigate("/");
             else {
-                console.log(location.state.packageId);
                 setPackageId(location.state.packageId);
+                loadProvider();
                 loadPackageStatus();
                 // loadPackage();
                 if (location.state.packageId === 0) {
@@ -118,7 +146,6 @@ export default function DetailPAckagePage() {
     }, [location.state]);
 
     useEffect(() => {
-        console.log(newDocument);
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -142,7 +169,26 @@ export default function DetailPAckagePage() {
     useEffect(() => {
         if (packageDocumentId !== "")
             loadDocumentById()
-    }, [packageDocumentId])
+    }, [packageDocumentId]);
+
+    useEffect(() => {
+        if (selectedProvider.id) {
+            setPackages({ ...packages, provider_name: selectedProvider.id });
+        } else {
+            setPackages({ ...packages, provider_name: null });
+        }
+    }, [selectedProvider]);
+
+    useEffect(() => {
+        if (listProvider.length > 0) {
+            if (packages.provider_name) {
+                let newList = listProvider.find(p => p.id === packages.provider_name);
+                if (newList) {
+                    setSelectedProvide(newList);
+                }
+            }
+        }
+    }, [listProvider])
 
 
     useEffect(() => {
@@ -156,7 +202,7 @@ export default function DetailPAckagePage() {
     useEffect(() => {
         if (listStatus.length > 0) {
             if (packageId === 0) {
-                let newList = listStatus.find(p => p.status_code = "new");
+                let newList = listStatus.find(p => p.status_code === "Baru");
                 setPackages({ ...packages, package_status: newList.id })
             }
         }
@@ -191,7 +237,7 @@ export default function DetailPAckagePage() {
 
     useEffect(() => {
         setIsLoading(true);
-        if (packageId !== "")
+        if (packageId !== "" && packageId !== 0)
             loadDocumentData();
     }, [page]);
 
@@ -227,12 +273,46 @@ export default function DetailPAckagePage() {
     }, [downloadDocumentId])
 
 
+    useEffect(() => {
+        if (packages.kontrak) {
+            setFormatterAmmount3(formatCurrency(packages.kontrak))
+        }
+        if (packages.pagu) {
+            setFormatterAmmount1(formatCurrency(packages.pagu));
+        }
+        if (packages.hps) {
+            setFormatterAmmount2(formatCurrency(packages.hps))
+        }
+        if (packages.provider_name) {
+            let newList = listProvider.find(p => p.id === packages.provider_name);
+            if (newList) {
+                setSelectedProvide(newList);
+            }
+        }
+
+        if (packages.provider_name === null || packages.provider_name === undefined) {
+            setDisabledButton(true);
+        }
+        else if (packages.package_name === "" || packages.package_name === undefined) {
+            setDisabledButton(true)
+        } else if (packages.selection_methode === "" || packages.selection_methode === undefined) {
+            setDisabledButton(true)
+        } else if (packages.hps === null || packages.hps === undefined) {
+            setDisabledButton(true);
+        }
+        else if (packages.upload_document === "" || packages.upload_document === null) {
+            setDisabledButton(true);
+        }
+        else {
+            setDisabledButton(false);
+        }
+    }, [packages])
+
 
 
     const initDataPackage = async () => {
         try {
             let response = await getPackageById(cookies.token, packageId);
-            console.log(response);
             if (response) {
                 setPackages({
                     ...packages,
@@ -241,7 +321,18 @@ export default function DetailPAckagePage() {
                     start_date: response.start_date,
                     package_status: response.package_status,
                     end_date: response.end_date,
-                    selection_methode: response.selection_methode
+                    selection_methode: response.selection_methode,
+                    pagu: response.pagu,
+                    hps: response.hps,
+                    kontrak: response.kontrak,
+                    ppk_name: response.ppk_name,
+                    provider_name: response.provider_name,
+                    planing_consultant: response.planing_consultant,
+                    supervising_consultan: response.supervising_consultan,
+                    contract_number: response.contract_number,
+                    upload_document: response.upload_document,
+                    documentStatus : response.document_status_name,
+                    command: response.command
                 })
             }
             setIsLoading(false);
@@ -253,15 +344,21 @@ export default function DetailPAckagePage() {
 
     const saveData = async () => {
         try {
+            let packagesTmp = packages;
+            packagesTmp.kontrak = packagesTmp.kontrak ? packagesTmp.kontrak.replace(/\D/g, '') : null;
+            packagesTmp.pagu = packagesTmp.pagu ? packagesTmp.pagu.replace(/\D/g, '') : null;
+            packagesTmp.hps = packagesTmp.hps ? packagesTmp.hps.replace(/\D/g, '') : null;
+
             let response = await insertUpdatePackage(cookies.token, packages);
             if (response.error_code === 0) {
                 alert('Data Berhasil Disimpan');
-                if (packageId === 0) {
+                navigate("/Package")
+                // if (packageId === 0) {
 
-                    setPackageId(response.data.id)
-                } else {
-                    initDataPackage();
-                }
+                //     setPackageId(response.data.id)
+                // } else {
+                //     initDataPackage();
+                // }
             } else {
                 alert('Gagal Menyimpan Data');
                 setIsLoading(false);
@@ -289,7 +386,6 @@ export default function DetailPAckagePage() {
             setTotalPage(totalPage);
 
             let listDocument = await getPackageDocument(cookies.token, packageId, page, itemPerPage, undefined, descending, searchQuery);
-            console.log(listDocument)
             setListDocument(listDocument);
             setIsLoading(false);
             setIsSearched(0)
@@ -310,17 +406,16 @@ export default function DetailPAckagePage() {
 
     const loadDocumentApproved = async () => {
         try {
-            if(documentStatus === "Approved"){
+            if (documentStatus === "Approved") {
                 let commandResponse = await getPackageCommand(cookies.token, approveId);
-                console.log(commandResponse)
-                if(commandResponse){
+                if (commandResponse) {
                     setCommand({
                         ...command,
                         id: commandResponse.id,
                         note: commandResponse.note
                     })
                 }
-                
+
             }
             let response = await getPackageDocumentById(cookies.token, approveId);
             setDocumentToBeApproved(response);
@@ -374,7 +469,6 @@ export default function DetailPAckagePage() {
     const uploadDocument = async () => {
         return new Promise(async (resolve, reject) => {
             try {
-                console.log(newDocument);
                 let res = await insertUpdatePackageDocument(cookies.token, newDocument);
                 setShowDocumentUploadModal(false);
                 resetUploadForm();
@@ -417,22 +511,58 @@ export default function DetailPAckagePage() {
         }
     }
 
-    const ApproveDocument = async()=>{
+    const ApproveDocument = async () => {
         try {
-                let response = await updatePackageDocumentStatus(cookies.token, command);
-                if(response.error_code === 0){
-                    alert('Dokumen Telah Disetujui');
-                    loadDocumentData();
-                    initDataPackage()
-                    setShowDocumentApprovedModal(false);
-                }else{
-                    alert('Gagal Menyetujui Dokumen')
-                }
+            let response = await updatePackageDocumentStatus(cookies.token, packages.command, packageId);
+            if (response.error_code === 0) {
+                alert('Dokumen Telah Disetujui');
+                loadDocumentData();
+                initDataPackage()
+                setShowDocumentApprovedModal(false);
+            } else {
+                alert('Gagal Menyetujui Dokumen')
+            }
         } catch (exception) {
-            
+
         }
     }
 
+    const formatCurrency = (value) => {
+        // If value is empty or null, return "0"
+
+        if (!value || value.trim() === "") {
+            return "0";
+
+        } else {
+            value = value.replace(/\D/g, '');
+
+            // Format the value as currency
+            if (value.trim() === "") {
+                return "0";
+            }
+            const formattedValue = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(parseFloat(value));
+
+            return formattedValue;
+
+        }
+        // Remove non-digit characters
+
+
+    };
+
+    const loadProvider = async () => {
+        try {
+            let response = await getUserAccount(cookies.token);
+            let newList = response.filter(p => p.user_role === "4");
+            setListProvider(newList);
+        } catch (exception) {
+
+        }
+    }
 
     return (
         <>
@@ -463,6 +593,22 @@ export default function DetailPAckagePage() {
                         // alignItems: "center",
                         // alignSelf: "center"
                     }} >
+                         <div style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            backgroundImage: `url(${webLogo})`,
+                            backgroundSize: "25%",
+                            backgroundRepeat: "no-repeat",
+                            backgroundPosition: "center",
+                            backgroundPositionX: "center",
+                            opacity: 0.1,
+                            pointerEvents: "none",
+                            zIndex: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.5)" 
+                        }}></div>
                         <div style={{
                             display: "flex",
                             flexDirection: "column",
@@ -472,187 +618,260 @@ export default function DetailPAckagePage() {
 
                         }}>
 
+                            <div style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "nowrap",
+                                borderBottomStyle: "inset"
+                            }}>
+                                <div onClick={() => {
+                                    navigate('/Package');
+                                }} style={{ display: "flex", alignItems: "center", cursor: "pointer" }}><img src={backLogo} alt="Icon" style={{ width: '50px', height: '50px' }} /></div>
+                                <div style={{ paddingRight: 10 }}></div>
+                                <div style={{ display: "flex", alignItems: "center", fontSize: 35 }}>Detail Paket</div>
+                            </div>
 
+                            <div style={{ paddingBottom: 10 }}></div>
                             <div style={{
                                 display: "flex",
                                 flexDirection: "column",
                                 flexWrap: "nowrap",
                                 padding: 10
                             }}>
-                                <Form onSubmit={(e) => {
+                                <Form className="detailPackageForm" onSubmit={(e) => {
                                     e.preventDefault();
                                     setIsLoading(true);
                                     setDisabledButton(true);
                                     saveData()
                                 }}>
-                                    <Form.Group  className="mb-3">
-                                        <Form.Label>Nama Paket</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} onChange={(e) => {
-                                            setPackages({ ...packages, package_name: e.target.value })
-                                        }} value={packages.package_name} required></Form.Control>
-                                    </Form.Group>
-                                  
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Metode Pemilihan</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="Text" onChange={(e) => {
-                                            setPackages({ ...packages, selection_methode: e.target.value })
-                                        }} value={packages.selection_methode} required></Form.Control>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Pagu</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="Text" onChange={(e) => {
-                                            // setPackages({ ...packages, selection_methode: e.target.value })
-                                        }} value={"Rp 15.897.723.162"} required></Form.Control>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>HPS</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="Text" onChange={(e) => {
-                                            // setPackages({ ...packages, selection_methode: e.target.value })
-                                        }} value={"Rp 15.800.000.000"} required></Form.Control>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Kontrak</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="Text" onChange={(e) => {
-                                            // setPackages({ ...packages, selection_methode: e.target.value })
-                                        }} value={"Rp 13.815.090.897"} required></Form.Control>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Nama PPK</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="Text" onChange={(e) => {
-                                            // setPackages({ ...packages, selection_methode: e.target.value })
-                                        }} value={"Dewi Aryati Ningrum"} required></Form.Control>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Nama Penyedia</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="Text" onChange={(e) => {
-                                            // setPackages({ ...packages, selection_methode: e.target.value })
-                                        }} value={"PT. Satyagi Cipta Prima"} required></Form.Control>
-                                    </Form.Group>
-                                    
-                                    
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Status Paket</Form.Label>
-                                        <Form.Select disabled value={packages.package_status}>
-                                            <option></option>
+                                    <div style={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        flexWrap: 'nowrap',
+                                        width: "100%",
+                                        // padding: 10
+                                    }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: "column",
+                                            paddingRight: 10,
+                                            flex: 1
+                                        }}>
+                                            <div style={{
+                                                display: 'flex',
+                                                flexDirection: "column",
+                                            }}>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Nama Paket <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} onChange={(e) => {
+                                                        setPackages({ ...packages, package_name: e.target.value })
+                                                    }} value={packages.package_name} required></Form.Control>
+                                                </Form.Group>
 
-                                            {listStatus.map((status, index) => {
-                                                return (
-                                                    <option value={status.id} key={index}>{status.status_name}</option>
-                                                )
-                                            })}
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Metode Pemilihan <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} onChange={(e) => {
+                                                        setPackages({ ...packages, selection_methode: e.target.value })
+                                                    }} value={packages.selection_methode} required></Form.Control>
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Pagu <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} onChange={(e) => {
+                                                        setPackages({ ...packages, pagu: e.target.value });
+                                                        setFormatterAmmount1(formatCurrency(e.target.value))
+                                                    }} value={formattedAmount1} required></Form.Control>
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>HPS <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} onChange={(e) => {
+                                                        setPackages({ ...packages, hps: e.target.value })
+                                                        setFormatterAmmount2(formatCurrency(e.target.value))
+                                                    }} value={formattedAmount2} required></Form.Control>
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Nilai Kontrak</Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} onChange={(e) => {
+                                                        setPackages({ ...packages, kontrak: e.target.value })
+                                                        setFormatterAmmount3(formatCurrency(e.target.value))
 
-                                        </Form.Select>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Tanggal Mulai</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="date" onChange={(e) => {
-                                            setPackages({ ...packages, start_date: e.target.value })
-                                        }} value={!packages.start_date ? moment(packages.start_date).format("yyyy-MM-DD") : ""} required></Form.Control>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Tanggal Selesai</Form.Label>
-                                        <Form.Control disabled={cookies.userRole !== 2} type="date" onChange={(e) => {
-                                            setPackages({ ...packages, end_date: e.target.value })
-                                        }} value={!packages.end_date ? moment(packages.end_date).format("yyyy-MM-DD") : ""} required></Form.Control>
-                                    </Form.Group>
+                                                    }} value={formattedAmount3} ></Form.Control>
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Nama PPK</Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} onChange={(e) => {
+                                                        setPackages({ ...packages, ppk_name: e.target.value })
+                                                    }} value={packages.ppk_name} ></Form.Control>
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Nama Penyedia <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    {/* <Form.Control disabled={cookies.userRole !== 2} type="text" onChange={(e) => {
+                                                        setPackages({ ...packages, provider_name: e.target.value })
+                                                    }} value={packages.provider_name} ></Form.Control> */}
+                                                    <Select isDisabled={cookies.userRole !== 2} styles={customStyles} placeholder={"Pilih Penyedia"}
+                                                        getOptionLabel={(item) => {
+                                                            return item.name;
+                                                        }} clearValue={true}
+                                                        getOptionValue={(item) => {
+                                                            return item.id;
+                                                        }}
+                                                        options={listProvider} value={selectedProvider} onChange={(e) => {
+                                                            if (e === null) {
+                                                                setSelectedProvide({})
+                                                            } else {
+                                                                setSelectedProvide(e);
+                                                            }
+                                                        }}
+                                                        isClearable
+                                                        required
+                                                    />
+                                                </Form.Group>
 
-                                    {
-                                        packageId !== 0 && packageId !== "" &&
+                                            </div>
+
+                                        </div>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: "column",
+                                            paddingLeft: 10,
+                                            flex: 1
+                                        }}>
+                                            <div style={{
+                                                display: 'flex',
+                                                flexDirection: "column",
+
+
+                                            }}>
+
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Konsultan Perencana</Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} value={packages.planing_consultant} onChange={(e) => {
+                                                        setPackages({ ...packages, planing_consultant: e.target.value })
+                                                    }}></Form.Control>
+                                                </Form.Group>
+
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Konsultan Pengawas</Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} value={packages.supervising_consultan} onChange={(e) => {
+                                                        setPackages({ ...packages, supervising_consultan: e.target.value })
+                                                    }}></Form.Control>
+                                                </Form.Group>
+
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Nomor Kontrak</Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} value={packages.contract_number} onChange={(e) => {
+                                                        setPackages({ ...packages, contract_number: e.target.value })
+                                                    }}></Form.Control>
+                                                </Form.Group>
+
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Status Paket</Form.Label>
+                                                    <Form.Select disabled value={packages.package_status}>
+                                                        <option></option>
+
+                                                        {listStatus.map((status, index) => {
+                                                            return (
+                                                                <option value={status.id} key={index}>{status.status_name}</option>
+                                                            )
+                                                        })}
+
+                                                    </Form.Select>
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Tanggal Mulai</Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} type="date" onChange={(e) => {
+                                                        if (e.target.value === "") {
+                                                            setPackages({ ...packages, start_date: null })
+                                                        } else {
+                                                            setPackages({ ...packages, start_date: e.target.value })
+                                                        }
+
+                                                    }} value={packages.start_date ? moment(packages.start_date).format("yyyy-MM-DD") : ""} ></Form.Control>
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Tanggal Selesai</Form.Label>
+                                                    <Form.Control disabled={cookies.userRole !== 2} type="date" onChange={(e) => {
+                                                        if (e.target.value === "") {
+                                                            setPackages({ ...packages, end_date: null })
+                                                        } else {
+                                                            setPackages({ ...packages, end_date: e.target.value })
+                                                        }
+
+                                                    }} value={packages.end_date ? moment(packages.end_date).format("yyyy-MM-DD") : ""} ></Form.Control>
+                                                </Form.Group>
+
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                    <div style={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                    }}>
+
                                         <div style={{
                                             display: "flex",
-                                            flexDirection: "column"
+                                            flexDirection: "column",
+                                            // flex: 1,
+                                            paddingRight: 10,
+                                            width: 830 
                                         }}>
-                                            <div style={{ paddingBottom: 20 }}></div>
-                                            <div hidden={cookies.userRole !== 2} style={{
-                                                display: "flex",
-                                                justifyContent: "flex-end",
-                                                width: "100%",
-                                                paddingRight: 30
-                                            }}>
-                                                <Button hidden={listDocument.length>0} variant="primary" style={{
-                                                    width: "10%"
-                                                }} onClick={() => {
-                                                    setShowDocumentUploadModal(true);
-                                                }}>
-                                                    <div style={{
-                                                        display: "flex",
-                                                        flex: 1,
-                                                        alignContent: "center",
-                                                        alignItems: "center",
-                                                        justifyContent: "center",
-                                                        flexDirection: "row",
-                                                        alignSelf: "center",
-                                                    }}>
-                                                        <div style={{
-                                                            display: "flex",
-                                                            alignContent: "center",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            alignSelf: "center",
-                                                            flex: 1,
-                                                        }}><FilePlusFill size={32} /></div>
-                                                        <div style={{
-                                                            display: "flex",
-                                                            flex: 8,
-                                                            alignContent: "center",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            alignSelf: "center",
-                                                            paddingLeft: 10,
-                                                            fontWeight: "bold",
-                                                            fontSize: 18,
-                                                        }}>Tambah Data</div>
-                                                    </div>
-                                                </Button>
-                                            </div>
-                                            <div style={{paddingBottom:10}}></div>
-                                            <Table striped bordered hover>
-                                                <thead >
-                                                    <tr>
-                                                        <th style={{ textAlign: "center" }}>Nama Dokumen</th>
-                                                        <th style={{ textAlign: "center" }}>Status Dokumen</th>
-                                                        <th style={{ width: 120, textAlign: "center" }} hidden={cookies.userRole !== 2}>Edit</th>
-                                                        <th style={{ width: 130, textAlign: "center" }}>Lihat Dokumen</th>
-                                                        <th style={{ width: 120, textAlign: "center" }} hidden={cookies.userRole !== 1}>Setujui</th>
-                                                        <th style={{ width: 120, textAlign: "center" }} hidden={cookies.userRole !== 2}>Hapus</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {
-                                                        listDocument.map((docs, index) => {
-                                                            return (
-                                                                <tr key={index}>
-                                                                    <td>{docs.document_name}</td>
-                                                                    <td>{docs.document_status_name}</td>
-                                                                    <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button disabled={docs.document_status_name === "Approved"} style={{ width: 50 }} onClick={() => {
-                                                                        setDocumentId(docs.id)
-                                                                    }}><PencilFill /></Button></td>
-                                                                    <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
-                                                                        setPackageDocumentId(docs.id)
-                                                                    }}><EyeFill /></Button></td>
-                                                                    <td style={{ textAlign: "center" }} hidden={cookies.userRole !== 1}><Button style={{ width: 50 }} onClick={() => {
-                                                                        setApproveId(docs.id);
-                                                                        setCommand({...command,id: docs.id});
-                                                                        setDocumentStatus(docs.document_status_name)
-                                                                        // if(docs.document_status_name === "Apporved"){
-                                                                        //     setDocumentStatus("Approved")
-                                                                        // }
-                                                                    }}><CheckLg /></Button></td>
-                                                                    <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button disabled={docs.document_status_name === "Approved"} variant="danger" style={{ width: 50 }} onClick={() => {
-                                                                        if (window.confirm("Apakah Anda Yakin Menghapus Data Ini ")) {
-                                                                            setRemoveId(docs.id)
-                                                                        }
-                                                                    }}><Trash /></Button></td>
-                                                                </tr>
-                                                            )
-                                                        })
-                                                    }
-                                                </tbody>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Dokumen<span style={{ color: "red" }}>*</span></Form.Label>
+                                                <Form.Control type="file"  onChange={async (e) => {
+                                                    if (e.target.files[0].type === "application/pdf") {
+                                                        let base64Doc = await convertBase64(e.target.files[0]);
+                                                        setPackages({ ...packages, upload_document: base64Doc.toString(), file: e.target.value });
+                                                        setUploadFileImageError("");
 
-                                            </Table>
+
+                                                    } else {
+                                                        setNewDocument({ ...newDocument, url_base64: "", file: "" });
+                                                        setUploadFileImageError(`Hanya Bisa File PDF`)
+
+                                                    }
+                                                }}></Form.Control>
+                                            </Form.Group>
+                                            <span style={{ color: "red" }}>{uploadFileImageError}</span>
+
+                                            {
+                                                packages.upload_document &&
+                                                <a
+                                                    href={packages.upload_document}
+                                                    download={"Laporan Hasil Pemilihan Penyedia"}
+                                                    style={{ textDecoration: 'none', color: 'blue', cursor: 'pointer' }}
+                                                >
+                                                    <FilePdf size={30} />
+                                                    <span>Laporan Hasil Pemilihan Penyedia</span>
+                                                </a>
+                                            }
+
+                                        </div>
+                                        <div hidden={cookies.userRole !== 1} style={{ display: "flex", flexDirection: "column", flex: 1, paddingLeft: 10 }}>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Perintah</Form.Label>
+                                                <Form.Control onChange={(e) => {
+                                                    setPackages({...packages, command:e.target.value})
+                                                }} value={packages.command} required={cookies.userRole === 1}></Form.Control>
+                                            </Form.Group>
                                         </div>
 
-                                    }
+                                    </div>
+
+                                    <div style={{ paddingBottom: 10 }}></div>
+
+                                    <span>* Informasi Wajib Diisi</span>
+
+                                    <div hidden={cookies.userRole !== 1} style={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        padding: 10,
+                                        justifyContent: "center",
+                                    }}>
+                                        <Button variant="success" onClick={()=>{
+                                            ApproveDocument();
+                                        }} hidden={packages.documentStatus === "Disetujui"} style={{width:150}}>Setuju</Button>
+                                    </div>
 
                                     <div hidden={cookies.userRole !== 2} style={{
                                         display: "flex",
@@ -664,13 +883,13 @@ export default function DetailPAckagePage() {
                                             display: "flex",
                                             paddingRight: 5
                                         }}>
-                                            <Button disabled={disabledButton} style={{ width: 100 }} type="submit">Simpan</Button>
+                                            <Button disabled={disabledButton} style={{ width: 100, zIndex:999 }} type="submit">Simpan</Button>
                                         </div>
                                         <div style={{
                                             display: "flex",
                                             paddingLeft: 5
                                         }}>
-                                            <Button style={{ width: 100 }} type="reset" variant="danger" onClick={(e) => {
+                                            <Button style={{ width: 100, zIndex:999 }} type="reset" variant="danger" onClick={(e) => {
                                                 navigate('/Package')
                                             }}>Batal</Button>
                                         </div>
@@ -691,7 +910,7 @@ export default function DetailPAckagePage() {
 
                         </div >
 
-                        <Modal show={showDocumentUploadModal}
+                        {/* <Modal show={showDocumentUploadModal}
                             // dialogClassName="modal-size"
                             size={"lg"}
                             onHide={() => {
@@ -1196,19 +1415,19 @@ export default function DetailPAckagePage() {
                                                 padding: 10,
                                                 flexDirection: "column"
                                             }}>
-                                                <Form onSubmit={(e)=>{
+                                                <Form onSubmit={(e) => {
                                                     e.preventDefault();
                                                     ApproveDocument();
 
-                                                }}>  
+                                                }}>
                                                     <Form.Group className="mb-3">
                                                         <Form.Label>Catatan</Form.Label>
-                                                        <Form.Control onChange={(e)=>{
-                                                            setCommand({...command, note: e.target.value})
+                                                        <Form.Control onChange={(e) => {
+                                                            setPackages({ ...packages, command: e.target.value })
                                                         }} value={command.note} as={"textarea"} rows={3} required></Form.Control>
                                                     </Form.Group>
 
-                                                    <Button hidden={documentStatus === "Approved"} type="submit">Setujui</Button>
+                                                    <Button hidden={documentStatus === "Approved"} type="submit">Setuju</Button>
                                                 </Form>
 
                                             </div>
@@ -1217,7 +1436,7 @@ export default function DetailPAckagePage() {
                                     </div>
                                 } />
 
-                        </Modal>
+                        </Modal> */}
 
                     </Container >
                 </div>
