@@ -1639,9 +1639,13 @@ export const insertUpdatePackageStep12 = async (token, document, packageId, path
         url_base64: document.url_base64,
         document_name: document.document_name,
         package_step_id: document.package_step_id,
+        document_type: document.document_type,
+        start_date: document.start_date,
+        end_date: document.end_date,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        document_number: document.document_number
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep12`, payload, {
@@ -1706,6 +1710,36 @@ export const getPackageStep12ById = async (token, packageId) => {
         return ([]);
     }
 }
+
+
+export const updateStep12DocumentStatus = async (token, step) => {
+    const payload = {
+        id: step.id,
+        package_step_id: step.package_step_id,
+        package_id: step.package_id,
+        path: step.path,
+        provider_name: step.provider_name,
+        document_type: step.document_type,
+        approvals: step.approvals
+    }
+    try {
+        let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDOcumentStep12`, payload, {
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data)
+        } else {
+            return ([])
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
 
 
 export const insertUpdatePackageStep13 = async (token, document, packageId, pathName) => {

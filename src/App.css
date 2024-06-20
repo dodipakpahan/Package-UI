@@ -262,3 +262,55 @@ html * {
   cursor: pointer;
 }
 
+.nav-link:hover{
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.nav-link.active{
+  background-color: #498dd9 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+
+.nav-tabs .nav-link.disabled,
+.nav-tabs .nav-link:disabled {
+  background-color: gray !important;
+  color: #fff;
+  font-weight: bold;
+}
+
+.nav-tabs .nav-link{
+  border-style: solid !important;
+  border-color: #498dd9 !important;
+}
+
+
+.packageTableDetail {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px; /* Increase font size */
+}
+
+.packageTableDetail th {
+  border: 1px solid #ddd;
+  padding: 4px 8px; /* Decrease padding to make rows less tall */
+  vertical-align: middle; /* Align content to middle */
+  font-size: 18px;
+}
+
+.packageTableDetail td{
+  border: 1px solid #ddd;
+  padding: 4px 8px; /* Decrease padding to make rows less tall */
+  vertical-align: middle; /* Align content to middle */
+  font-size: 18px;
+}
+
+.packageTableDetail th {
+  background-color: #498dd9 !important;
+  text-align: center;
+  color: #fff !important;
+  font-weight: bold !important;
+  
+}

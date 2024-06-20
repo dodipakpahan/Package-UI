@@ -199,7 +199,7 @@ export default function PackageStep() {
                                                     <td style={{textAlign:"center"}}>{steps.status_name}</td>
                                                     <td >
                                                         <div className="buttonContainer" >
-                                                            <Button disabled={Number(steps.package_step) < index || !steps.package_step} variant="primary" onClick={() => {
+                                                            <Button /*disabled={Number(steps.package_step) < index || !steps.package_step}*/ variant="primary" onClick={() => {
                                                                 navigate(`${steps.path}`, { state: { stepId: steps.id, orderNumber: steps.order_number, packageId: steps.package_id } });
                                                             }}><EyeFill />
                                                             </Button>

@@ -631,7 +631,8 @@ export default function PackageStep11Page() {
                                                                             <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
                                                                             }}><Download /></Button></td>
-                                                                            <td style={{ textAlign: "center" }} hidden={cookies.userRole !== 1 || !docs.document_status_name}><Button variant="success" style={{ width: 50 }} onClick={() => {
+                                                                            <td style={{ textAlign: "center" }} hidden={cookies.userRole !== 1}>
+                                                                                <Button hidden={!docs.document_status_name} variant="success" style={{ width: 50 }} onClick={() => {
                                                                                 setApproveId(docs.id);
                                                                                 setDocumentStatus(docs.document_status_name)
                                                                                 // if(docs.document_status_name === "Apporved"){
