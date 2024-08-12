@@ -1665,6 +1665,29 @@ export const insertUpdatePackageStep12 = async (token, document, packageId, path
     }
 }
 
+
+export const deleteDocumentStep12 = async (token, documentId) => {
+    const payload = {
+        id: documentId
+    }
+    try {
+        let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/deleteDocumentStep12`, payload, {
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.error_code)
+        } else {
+            return ([])
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
 export const getPackageStep12Document = async (token, packageStepId) => {
 
     try {
@@ -3840,6 +3863,51 @@ export const updatePassword = async (token, userId, loginPassword) => {
             return (response.data.error_code)
         } else {
             return ([])
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
+export const deleteDocumentStep = async (token, documentId, packageStep) => {
+    const payload = {
+        id: documentId,
+        package_step: packageStep
+    }
+    try {
+        let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/deleteDocumentStep`, payload, {
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.error_code)
+        } else {
+            return ([])
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
+export const getDetailPackage = async (token, packageId) => {
+    try {
+        let response = await axios.get(`${Config.API_ENDPOINT}/api/Package/findDetailPackage`, {
+            params: {
+                id: packageId
+            },
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.data[0]);
+        } else {
+            return ([]);
         }
     }
     catch (exception) {

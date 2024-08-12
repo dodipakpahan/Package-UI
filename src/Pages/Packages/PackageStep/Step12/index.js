@@ -12,12 +12,13 @@ import {
 import "../../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, getPackageStepById, getPackageStep, getPackageById, convertBase64,
+    isTokenValid, getPackageStepById, getPackageStep, getDetailPackage, convertBase64,
     insertUpdatePackageStep12,
     getPackageStep12ById,
     getPackageStep12Document,
     updateStep12DocumentStatus,
-    updateStep1DocumentStatus
+    updateStep1DocumentStatus,
+    deleteDocumentStep12
 } from "../../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../../Components/Sidebar";
 import backLogo from "../../../../Assets/images/leftArrow.png"
@@ -61,6 +62,7 @@ export default function PackageStep12Page() {
     const [searchButton, setSearchButton] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [detailStep, setDetailStep] = useState({});
+    const [removeId, setRemoveId] = useState("");
     const [dailyDate, setDailyDate] = useState("");
     const [detailPackage, setDetailPackage] = useState({});
     const [uploadButton, setUploadButton] = useState(false);
@@ -136,7 +138,10 @@ export default function PackageStep12Page() {
     }, [location.state]);
 
     useEffect(() => {
-        console.log(newDocument);
+        if (newDocument.id !== 0){
+            setShowDocumentUploadModal(true);
+        }
+          
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -144,6 +149,8 @@ export default function PackageStep12Page() {
         }
         submitNewDocument();
     }, [newDocument]);
+
+    
 
     useEffect(() => {
         if (documentToBeViewed.id !== 0)
@@ -170,7 +177,12 @@ export default function PackageStep12Page() {
     useEffect(() => {
         if (stepDocumentId !== "")
             loadDocumentById()
-    }, [stepDocumentId])
+    }, [stepDocumentId]);
+
+    useEffect(()=>{
+        if(removeId !== "")
+            removeDocument();
+    },[removeId])
 
     useEffect(() => {
         if (!showDocumentDetailModal) {
@@ -343,7 +355,7 @@ export default function PackageStep12Page() {
 
     const initPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, location.state.packageId);
+            let response = await getDetailPackage(cookies.token, location.state.packageId);
             console.log(response);
             if (response) {
                 setDetailPackage(response);
@@ -357,6 +369,7 @@ export default function PackageStep12Page() {
         return new Promise(async (resolve, reject) => {
             try {
                 let res = await insertUpdatePackageStep12(cookies.token, newDocument, packageId, window.location.pathname);
+                alert('Data Telah Disimpan');
                 setShowDocumentUploadModal(false);
                 setModalDocumentTab2(false);
                 setModalDocumentTab3(false);
@@ -518,6 +531,21 @@ export default function PackageStep12Page() {
             setShowDocumentApprovedModal(false);
         } catch (exception) {
 
+        }
+    }
+
+    const removeDocument = async()=>{
+        try {
+            let response = await deleteDocumentStep12(cookies.token, removeId);
+            if(response === 0){
+                alert('Laporan Telah Dihapus');
+                loadDocumentData();
+            }else{
+                alert('Gagal Menghapus Laporan');
+            }
+            setRemoveId("");
+        } catch (exception) {
+            
         }
     }
 
@@ -798,8 +826,10 @@ export default function PackageStep12Page() {
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>No</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Nama Dokumen</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Tanggal</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Lihat Dokumen</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Unduh</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Hapus</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -810,12 +840,21 @@ export default function PackageStep12Page() {
                                                                                         <td style={{ textAlign: "center" }} >{(page * itemPerPage) + (index + 1)}</td>
                                                                                         <td>{docs.document_name}</td>
                                                                                         <td>{docs.start_date ? moment(docs.start_date).format("DD-MM-yyyy") : ""}</td>
+                                                                                        <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                            setNewDocument(docs)
+                                                                                        }}><PencilFill /></Button></td>
                                                                                         <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setStepDocumentId(docs.id)
                                                                                         }}><EyeFill /></Button></td>
                                                                                         <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setDownloadDocumentId(docs.id)
                                                                                         }}><Download /></Button></td>
+                                                                                         <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "middle" }}><Button variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                            if(window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)){
+                                                                                                setRemoveId(docs.id)
+                                                                                            }
+
+                                                                                        }}><Trash /></Button></td>
                                                                                     </tr>
                                                                                 )
                                                                             })
@@ -852,8 +891,10 @@ export default function PackageStep12Page() {
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Nama Dokumen</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Tanggal Mulai</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Tanggal Selesai</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Lihat Dokumen</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Unduh</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Hapus</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -865,12 +906,21 @@ export default function PackageStep12Page() {
                                                                                         <td>{docs.document_name}</td>
                                                                                         <td>{docs.start_date ? moment(docs.start_date).format("DD-MM-yyyy") : ""}</td>
                                                                                         <td>{docs.end_date ? moment(docs.end_date).format("DD-MM-yyyy") : ""}</td>
+                                                                                        <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                            setNewDocument(docs)
+                                                                                        }}><PencilFill /></Button></td>
                                                                                         <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setStepDocumentId(docs.id)
                                                                                         }}><EyeFill /></Button></td>
                                                                                         <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setDownloadDocumentId(docs.id)
                                                                                         }}><Download /></Button></td>
+                                                                                          <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "middle" }}><Button variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                            if(window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)){
+                                                                                                setRemoveId(docs.id)
+                                                                                            }
+
+                                                                                        }}><Trash /></Button></td>
                                                                                     </tr>
                                                                                 )
                                                                             })
@@ -888,8 +938,10 @@ export default function PackageStep12Page() {
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Nama Dokumen</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Tanggal Mulai</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Tanggal Selesai</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Lihat Dokumen</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Unduh</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Hapus</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -901,12 +953,21 @@ export default function PackageStep12Page() {
                                                                                         <td>{docs.document_name}</td>
                                                                                         <td>{docs.start_date ? moment(docs.start_date).format("DD-MM-yyyy") : ""}</td>
                                                                                         <td>{docs.end_date ? moment(docs.end_date).format("DD-MM-yyyy") : ""}</td>
+                                                                                        <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                            setNewDocument(docs)
+                                                                                        }}><PencilFill /></Button></td>
                                                                                         <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setStepDocumentId(docs.id)
                                                                                         }}><EyeFill /></Button></td>
                                                                                         <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setDownloadDocumentId(docs.id)
                                                                                         }}><Download /></Button></td>
+                                                                                          <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "middle" }}><Button variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                            if(window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)){
+                                                                                                setRemoveId(docs.id)
+                                                                                            }
+
+                                                                                        }}><Trash /></Button></td>
                                                                                     </tr>
                                                                                 )
                                                                             })
@@ -916,14 +977,16 @@ export default function PackageStep12Page() {
                                                                 </Table>
 
                                                                 <div style={{ paddingBottom: 30 }}></div>
-                                                                <h4>Shop Drawing</h4>
+                                                                <h4>Gambar Kerja</h4>
                                                                 <Table className="packageTableDetail" style={{ width: '80%', borderCollapse: 'collapse' }}>
                                                                     <thead >
                                                                         <tr>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle', width: 50 }}>No</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Nama Dokumen</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Lihat Dokumen</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Unduh</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Hapus</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -933,12 +996,21 @@ export default function PackageStep12Page() {
                                                                                     <tr key={index}>
                                                                                         <td style={{ textAlign: "center" }}>{index + 1}</td>
                                                                                         <td>{docs.document_name}</td>
+                                                                                        <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                            setNewDocument(docs)
+                                                                                        }}><PencilFill /></Button></td>
                                                                                         <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setStepDocumentId(docs.id)
                                                                                         }}><EyeFill /></Button></td>
                                                                                         <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setDownloadDocumentId(docs.id)
                                                                                         }}><Download /></Button></td>
+                                                                                          <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "middle" }}><Button variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                            if(window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)){
+                                                                                                setRemoveId(docs.id)
+                                                                                            }
+
+                                                                                        }}><Trash /></Button></td>
                                                                                     </tr>
                                                                                 )
                                                                             })
@@ -948,14 +1020,16 @@ export default function PackageStep12Page() {
                                                                 </Table>
 
                                                                 <div style={{ paddingBottom: 30 }}></div>
-                                                                <h4>Persetujuan Bahan-Bahan</h4>
+                                                                <h4>Pengajuan Material</h4>
                                                                 <Table className="packageTableDetail" style={{ width: '80%', borderCollapse: 'collapse' }}>
                                                                     <thead >
                                                                         <tr>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle', width: 50 }}>No</th>
                                                                             <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Nama Dokumen</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Lihat Dokumen</th>
                                                                             <th style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Unduh</th>
+                                                                            <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Hapus</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -965,12 +1039,21 @@ export default function PackageStep12Page() {
                                                                                     <tr key={index}>
                                                                                         <td style={{ textAlign: "center" }}>{index + 1}</td>
                                                                                         <td>{docs.document_name}</td>
+                                                                                        <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                            setNewDocument(docs)
+                                                                                        }}><PencilFill /></Button></td>
                                                                                         <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setStepDocumentId(docs.id)
                                                                                         }}><EyeFill /></Button></td>
                                                                                         <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                             setDownloadDocumentId(docs.id)
                                                                                         }}><Download /></Button></td>
+                                                                                          <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "middle" }}><Button variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                            if(window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)){
+                                                                                                setRemoveId(docs.id)
+                                                                                            }
+
+                                                                                        }}><Trash /></Button></td>
                                                                                     </tr>
                                                                                 )
                                                                             })
@@ -1351,15 +1434,15 @@ export default function PackageStep12Page() {
 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Jenis Dokumen</Form.Label>
-                                        <Form.Select onChange={(e) => {
+                                        <Form.Select disabled={newDocument.id !== 0} onChange={(e) => {
                                             setNewDocument({ ...newDocument, document_type: e.target.value });
                                         }} value={newDocument.document_type} >
                                             <option disabled selected></option>
                                             <option value={0}>Laporan Harian</option>
                                             <option value={1}>Laporan Mingguan</option>
                                             <option value={2}>Laporan Bulanan</option>
-                                            <option value={3}>Laporan Shop Drawing</option>
-                                            <option value={4}>Persetujuan Bahan Bahan</option>
+                                            <option value={3}>Laporan Gambar Kerja</option>
+                                            <option value={4}>Pengajuan Material</option>
                                         </Form.Select>
                                     </Form.Group>
 
@@ -1400,7 +1483,7 @@ export default function PackageStep12Page() {
                                             {
                                                 (newDocument.document_type === "0" || newDocument.document_type === "1" || newDocument.document_type === "2") &&
                                                 <Form.Group className="mb-3">
-                                                    <Form.Label>Tanngal Dokumen</Form.Label>
+                                                    <Form.Label>Tanggal Dokumen</Form.Label>
                                                     <div style={{
                                                         display: "flex",
                                                         flexDirection: "row"
@@ -1412,7 +1495,7 @@ export default function PackageStep12Page() {
                                                                 setNewDocument({ ...newDocument, start_date: e.target.value })
                                                             }
 
-                                                        }} value={newDocument.start_date} type="date" placeholder="" ></Form.Control>
+                                                        }} value={newDocument.start_date? moment(newDocument.start_date).format("yyyy-MM-DD"): ""} type="date" placeholder="" ></Form.Control>
 
                                                         {
                                                             (newDocument.document_type === "1" || newDocument.document_type === "2") &&
@@ -1429,7 +1512,7 @@ export default function PackageStep12Page() {
                                                                         setNewDocument({ ...newDocument, end_date: e.target.value })
                                                                     }
 
-                                                                }} value={newDocument.end_date} type="date" placeholder="" ></Form.Control>
+                                                                }} value={newDocument.end_date? moment(newDocument.end_date).format("yyyy-MM-DD"):""} type="date" placeholder="" ></Form.Control>
 
                                                             </>
                                                         }

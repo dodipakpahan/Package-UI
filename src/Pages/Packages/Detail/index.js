@@ -13,7 +13,8 @@ import { Container } from "react-bootstrap";
 import {
     isTokenValid, insertUpdatePackage, getPackageById, convertBase64, getPackageStatus, getPackageDocument, getPackageDocumentById,
     deletePackageDocument, insertUpdatePackageDocument, getCountPackageDocument, updatePackageDocumentStatus, getPackageCommand,
-    getUserAccount
+    getUserAccount,
+    getDetailPackage
 } from "../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../Components/Sidebar";
 import LoadingAnimation from "../../../Components/Loading";
@@ -73,7 +74,7 @@ export default function DetailPAckagePage() {
         ppk_name: "",
         provider_name: null,
         planing_consultant: "",
-        supervising_consultan: "",
+        supervising_consultant: "",
         contract_number: "",
         upload_document: "",
         command:""
@@ -312,7 +313,8 @@ export default function DetailPAckagePage() {
 
     const initDataPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, packageId);
+            let response = await getDetailPackage(cookies.token, packageId);
+            console.log(response);
             if (response) {
                 setPackages({
                     ...packages,
@@ -328,7 +330,7 @@ export default function DetailPAckagePage() {
                     ppk_name: response.ppk_name,
                     provider_name: response.provider_name,
                     planing_consultant: response.planing_consultant,
-                    supervising_consultan: response.supervising_consultan,
+                    supervising_consultant: response.supervising_consultant,
                     contract_number: response.contract_number,
                     upload_document: response.upload_document,
                     documentStatus : response.document_status_name,
@@ -349,7 +351,8 @@ export default function DetailPAckagePage() {
             packagesTmp.pagu = packagesTmp.pagu ? packagesTmp.pagu.replace(/\D/g, '') : null;
             packagesTmp.hps = packagesTmp.hps ? packagesTmp.hps.replace(/\D/g, '') : null;
 
-            let response = await insertUpdatePackage(cookies.token, packages);
+            console.log(packagesTmp);
+            let response = await insertUpdatePackage(cookies.token, packagesTmp);
             if (response.error_code === 0) {
                 alert('Data Berhasil Disimpan');
                 navigate("/Package")
@@ -564,6 +567,18 @@ export default function DetailPAckagePage() {
         }
     }
 
+    const downloadDataDocument = async () => {
+        try {
+            let response = await getPackageById(cookies.token, location.state.packageId);
+            triggerBase64Download(response.upload_document, "Laporan Hasil Pemilihan Penyedia");
+            setIsLoading(false);
+            setDownloadDocumentId("");
+            setIsLoading(false);
+        } catch (exception) {
+            console.log(exception);
+        }
+    }
+
     return (
         <>
 
@@ -751,8 +766,8 @@ export default function DetailPAckagePage() {
 
                                                 <Form.Group className="mb-3">
                                                     <Form.Label>Konsultan Pengawas</Form.Label>
-                                                    <Form.Control disabled={cookies.userRole !== 2} value={packages.supervising_consultan} onChange={(e) => {
-                                                        setPackages({ ...packages, supervising_consultan: e.target.value })
+                                                    <Form.Control disabled={cookies.userRole !== 2} value={packages.supervising_consultant} onChange={(e) => {
+                                                        setPackages({ ...packages, supervising_consultant: e.target.value })
                                                     }}></Form.Control>
                                                 </Form.Group>
 
@@ -835,10 +850,14 @@ export default function DetailPAckagePage() {
                                             <span style={{ color: "red" }}>{uploadFileImageError}</span>
 
                                             {
-                                                packages.upload_document &&
+                                                location.state.packageId !== 0 &&
                                                 <a
-                                                    href={packages.upload_document}
-                                                    download={"Laporan Hasil Pemilihan Penyedia"}
+                                                    onClick={()=>{
+                                                        setIsLoading(true);
+                                                        downloadDataDocument()
+                                                    }}
+                                                    // href={packages.upload_document}
+                                                    // download={"Laporan Hasil Pemilihan Penyedia"}
                                                     style={{ textDecoration: 'none', color: 'blue', cursor: 'pointer' }}
                                                 >
                                                     <FilePdf size={30} />
@@ -902,10 +921,12 @@ export default function DetailPAckagePage() {
 
 
 
-
+                            {/* <div style={{display:"flex", justifyContent:"center"}}> */}
                             <LoadingAnimation
                                 isLoading={isLoading}
                             />
+                            {/* </div> */}
+                           
 
 
                         </div >

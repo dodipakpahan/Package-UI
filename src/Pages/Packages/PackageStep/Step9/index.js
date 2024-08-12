@@ -11,11 +11,12 @@ import {
 import "../../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, getPackageStepById, getPackageStep, getPackageById, convertBase64,
+    isTokenValid, getPackageStepById, getPackageStep, getDetailPackage, convertBase64,
     insertUpdatePackageStep9,
     getPackageStep9ById,
     getPackageStep9Document,
-    updateStep9DocumentStatus
+    updateStep9DocumentStatus,
+    deleteDocumentStep
 } from "../../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../../Components/Sidebar";
 import LoadingAnimation from "../../../../Components/Loading";
@@ -38,6 +39,7 @@ export default function PackageStep9Page() {
     const [cookies, setCookie] = useCookies(["token"]);
     const navigate = useNavigate();
     const location = useLocation();
+    const [removeId, setRemoveId] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [stepId, setStepId] = useState("");
     const [listDocument, setListDocument] = useState([]);
@@ -108,6 +110,9 @@ export default function PackageStep9Page() {
     }, [location.state]);
 
     useEffect(() => {
+        if (newDocument.id !== 0){
+            setShowDocumentUploadModal(true);
+        }
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -188,6 +193,10 @@ export default function PackageStep9Page() {
     }, [downloadDocumentId])
 
 
+    useEffect(() => {
+        if (removeId !== "")
+            removeDocument();
+    }, [removeId])
 
 
 
@@ -247,7 +256,7 @@ export default function PackageStep9Page() {
 
     const initPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, location.state.packageId);
+            let response = await getDetailPackage(cookies.token, location.state.packageId);
             console.log(response);
             if (response) {
                 setDetailPackage(response);
@@ -397,6 +406,21 @@ export default function PackageStep9Page() {
                 alert('Gagal Menyetujui Dokumen')
             }
             setShowDocumentApprovedModal(false);
+        } catch (exception) {
+
+        }
+    }
+
+    const removeDocument = async () => {
+        try {
+            let response = await deleteDocumentStep(cookies.token, removeId, 9);
+            if (response === 0) {
+                alert('Laporan Telah Dihapus');
+                loadDocumentData();
+            } else {
+                alert('Gagal Menghapus Laporan');
+            }
+            setRemoveId("");
         } catch (exception) {
 
         }
@@ -625,8 +649,11 @@ export default function PackageStep9Page() {
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Status</th>
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Keterangan</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 2} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
                                                                 <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 1}>Setuju</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2}>Hapus</th>
+
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -640,6 +667,10 @@ export default function PackageStep9Page() {
                                                                             <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setStepDocumentId(docs.id)
                                                                             }}><EyeFill /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                setNewDocument(docs)
+                                                                            }}><PencilFill /></Button></td>
+
                                                                             <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
                                                                             }}><Download /></Button></td>
@@ -651,6 +682,13 @@ export default function PackageStep9Page() {
                                                                                     //     setDocumentStatus("Approved")
                                                                                     // }
                                                                                 }}><CheckLg /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign: "middle" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                    if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
+                                                                                        setRemoveId(docs.id)
+                                                                                    }
+
+                                                                                }}><Trash /></Button></td>
 
 
                                                                         </tr>

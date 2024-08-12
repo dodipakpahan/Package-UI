@@ -11,10 +11,11 @@ import {
 import "../../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, getPackageStepById, getPackageStep, getPackageById, convertBase64,
+    isTokenValid, getPackageStepById, getPackageStep, getDetailPackage, convertBase64,
     insertUpdatePackageStep15, getPackageStep15ById,
     updateStep15DocumentStatus,
     getPackageStep15Document,
+    deleteDocumentStep
 } from "../../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../../Components/Sidebar";
 import LoadingAnimation from "../../../../Components/Loading";
@@ -35,6 +36,7 @@ import ContainerBox from "../../../../Components/ContainerBox";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 export default function PackageStep15Page() {
+    const [removeId, setRemoveId] = useState("");
     const [cookies, setCookie] = useCookies(["token"]);
     const navigate = useNavigate();
     const location = useLocation();
@@ -108,6 +110,10 @@ export default function PackageStep15Page() {
     }, [location.state]);
 
     useEffect(() => {
+        if (newDocument.id !== 0){
+            setShowDocumentUploadModal(true);
+        }
+
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -131,6 +137,12 @@ export default function PackageStep15Page() {
             loadDocumentApproved()
         }
     }, [approveId])
+
+    useEffect(() => {
+        if (removeId !== "")
+            removeDocument();
+    }, [removeId])
+
 
 
 
@@ -167,10 +179,10 @@ export default function PackageStep15Page() {
         }
     }, [showDocumentDetailModal]);
 
-    useEffect(()=>{
-        if(downloadDocumentId !== "")
+    useEffect(() => {
+        if (downloadDocumentId !== "")
             downloadData()
-    },[downloadDocumentId])
+    }, [downloadDocumentId])
 
 
     useEffect(() => {
@@ -231,7 +243,7 @@ export default function PackageStep15Page() {
 
     const initPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, location.state.packageId);
+            let response = await getDetailPackage(cookies.token, location.state.packageId);
             console.log(response);
             if (response) {
                 setDetailPackage(response);
@@ -385,6 +397,22 @@ export default function PackageStep15Page() {
 
     };
 
+    const removeDocument = async () => {
+        try {
+            let response = await deleteDocumentStep(cookies.token, removeId, 15);
+            if (response === 0) {
+                alert('Laporan Telah Dihapus');
+                loadDocumentData();
+            } else {
+                alert('Gagal Menghapus Laporan');
+            }
+            setRemoveId("");
+        } catch (exception) {
+
+        }
+    }
+
+
     return (
         <>
 
@@ -428,7 +456,7 @@ export default function PackageStep15Page() {
                             opacity: 0.1,
                             pointerEvents: "none",
                             zIndex: 0,
-                            backgroundColor: "rgba(255, 255, 255, 0.5)" 
+                            backgroundColor: "rgba(255, 255, 255, 0.5)"
                         }}></div>
                         <div style={{
                             display: "flex",
@@ -524,638 +552,650 @@ export default function PackageStep15Page() {
                                                         }} onClick={() => {
                                                             handleDownload()
                                                         }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FileWord size={20} /> Unduh Format Word</div> </Button>
-                                                    
 
 
-                                            </>
+
+                                                    </>
                                                 }
 
 
-                                            <div style={{
-                                                display: "flex",
-                                                flexDirection: "column"
-                                            }}>
-                                                <div style={{ paddingBottom: 20 }}></div>
-                                                <div hidden={cookies.userRole !== 2} style={{
+                                                <div style={{
                                                     display: "flex",
-                                                    justifyContent: "flex-end",
-                                                    width: "100%",
-                                                    paddingRight: 30
+                                                    flexDirection: "column"
                                                 }}>
-                                                    <Button variant="primary" style={{
-                                                        width: 130
-                                                    }} onClick={() => {
-                                                        setShowDocumentUploadModal(true);
+                                                    <div style={{ paddingBottom: 20 }}></div>
+                                                    <div hidden={cookies.userRole !== 2} style={{
+                                                        display: "flex",
+                                                        justifyContent: "flex-end",
+                                                        width: "100%",
+                                                        paddingRight: 30
                                                     }}>
-                                                        <div style={{
-                                                            display: "flex",
-                                                            flex: 1,
-                                                            alignContent: "center",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            flexDirection: "row",
-                                                            alignSelf: "center",
+                                                        <Button variant="primary" style={{
+                                                            width: 130
+                                                        }} onClick={() => {
+                                                            setShowDocumentUploadModal(true);
                                                         }}>
                                                             <div style={{
                                                                 display: "flex",
-                                                                alignContent: "center",
-                                                                alignItems: "center",
-                                                                justifyContent: "center",
-                                                                alignSelf: "center",
                                                                 flex: 1,
-                                                            }}><FilePlusFill size={32} /></div>
-                                                            <div style={{
-                                                                display: "flex",
-                                                                flex: 8,
                                                                 alignContent: "center",
                                                                 alignItems: "center",
                                                                 justifyContent: "center",
+                                                                flexDirection: "row",
                                                                 alignSelf: "center",
-                                                                paddingLeft: 10,
-                                                                fontWeight: "bold",
-                                                                fontSize: 14,
-                                                            }}>Tambah Data</div>
-                                                        </div>
-                                                    </Button>
+                                                            }}>
+                                                                <div style={{
+                                                                    display: "flex",
+                                                                    alignContent: "center",
+                                                                    alignItems: "center",
+                                                                    justifyContent: "center",
+                                                                    alignSelf: "center",
+                                                                    flex: 1,
+                                                                }}><FilePlusFill size={32} /></div>
+                                                                <div style={{
+                                                                    display: "flex",
+                                                                    flex: 8,
+                                                                    alignContent: "center",
+                                                                    alignItems: "center",
+                                                                    justifyContent: "center",
+                                                                    alignSelf: "center",
+                                                                    paddingLeft: 10,
+                                                                    fontWeight: "bold",
+                                                                    fontSize: 14,
+                                                                }}>Tambah Data</div>
+                                                            </div>
+                                                        </Button>
+                                                    </div>
+                                                    <div style={{ paddingBottom: 10 }}></div>
+                                                    <Table striped bordered hover>
+                                                        <thead >
+                                                            <tr>
+                                                                <th style={{ textAlign: "center", verticalAlign: "middle" }}>Nama Dokumen</th>
+                                                                <th style={{ textAlign: "center", verticalAlign: "middle" }}>Keterangan</th>
+                                                                <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 2} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} >Unduh</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2}>Hapus</th>
+
+
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {
+                                                                listDocument.map((docs, index) => {
+                                                                    return (
+                                                                        <tr key={index}>
+                                                                            <td>{docs.document_name}</td>
+                                                                            <td>{docs.description}</td>
+                                                                            <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                setStepDocumentId(docs.id)
+                                                                            }}><EyeFill /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                            setNewDocument(docs)
+                                                                                        }}><PencilFill /></Button></td>
+                                                                            <td style={{ textAlign: "center" }} ><Button style={{ width: 50 }} onClick={() => {
+                                                                                setDownloadDocumentId(docs.id)
+                                                                            }}><Download /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign: "middle" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                    if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
+                                                                                        setRemoveId(docs.id)
+                                                                                    }
+
+                                                                                }}><Trash /></Button></td>
+
+                                                                        </tr>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </tbody>
+
+                                                    </Table>
                                                 </div>
-                                                <div style={{ paddingBottom: 10 }}></div>
-                                                <Table striped bordered hover>
-                                                    <thead >
-                                                        <tr>
-                                                            <th style={{ textAlign: "center", verticalAlign:"middle" }}>Nama Dokumen</th>
-                                                            <th style={{ textAlign: "center", verticalAlign:"middle" }}>Keterangan</th>
-                                                            <th style={{ width: 130, textAlign: "center", verticalAlign:"middle" }}>Lihat Dokumen</th>
-                                                            <th style={{ width: 120, textAlign: "center", verticalAlign:"middle" }} >Unduh</th>
-
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {
-                                                            listDocument.map((docs, index) => {
-                                                                return (
-                                                                    <tr key={index}>
-                                                                        <td>{docs.document_name}</td>
-                                                                        <td>{docs.description}</td>
-                                                                        <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
-                                                                            setStepDocumentId(docs.id)
-                                                                        }}><EyeFill /></Button></td>
-                                                                        <td style={{ textAlign: "center" }} ><Button  style={{ width: 50 }} onClick={() => {
-                                                                            setDownloadDocumentId(docs.id)
-                                                                        }}><Download /></Button></td>
 
 
-                                                                    </tr>
-                                                                )
-                                                            })
-                                                        }
-                                                    </tbody>
 
-                                                </Table>
                                             </div>
-
-
-
                                         </div>
                                     </div>
                                 </div>
+
+
                             </div>
 
 
-                        </div>
+
+
+                            <LoadingAnimation
+                                isLoading={isLoading}
+                            />
+
+
+                        </div >
+
+                        <Modal show={showDocumentUploadModal}
+                            // dialogClassName="modal-size"
+                            size={"lg"}
+                            onHide={() => {
+                                resetUploadForm();
+                                setShowDocumentUploadModal(false);
+                            }}>
+                            <div className="details m-2" >
+                                <div className="detailscontent">
+                                    <h3>Dokumen {detailStep.step_name} </h3>
+                                </div>
+
+                                <Form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    setNewDocument({ ...newDocument, done: true });
+                                    setUploadButton(true);
+                                    setIsLoading(true);
+                                }} style={{ padding: 10 }}>
 
 
 
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Dokumen</Form.Label>
+                                        <Form.Control onChange={async (e) => {
+                                            if (e.target.files[0].type === "application/pdf") {
+                                                let base64Doc = await convertBase64(e.target.files[0]);
+                                                setNewDocument({ ...newDocument, url_base64: base64Doc.toString(), file: e.target.value });
+                                                setUploadFileImageError("");
+                                                setUploadButton(false)
 
-                        <LoadingAnimation
-                            isLoading={isLoading}
-                        />
+                                            } else {
+                                                setNewDocument({ ...newDocument, url_base64: "", file: "" });
+                                                setUploadFileImageError(`Hanya Bisa File PDF`)
+                                                setUploadButton(true)
+                                            }
 
+                                        }} type="file" required={newDocument.id === 0}></Form.Control>
 
-                </div >
-
-                <Modal show={showDocumentUploadModal}
-                    // dialogClassName="modal-size"
-                    size={"lg"}
-                    onHide={() => {
-                        resetUploadForm();
-                        setShowDocumentUploadModal(false);
-                    }}>
-                    <div className="details m-2" >
-                        <div className="detailscontent">
-                            <h3>Dokumen {detailStep.step_name} </h3>
-                        </div>
-
-                        <Form onSubmit={(e) => {
-                            e.preventDefault();
-                            setNewDocument({ ...newDocument, done: true });
-                            setUploadButton(true);
-                            setIsLoading(true);
-                        }} style={{ padding: 10 }}>
-
-
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>Dokumen</Form.Label>
-                                <Form.Control onChange={async (e) => {
-                                    if (e.target.files[0].type === "application/pdf") {
-                                        let base64Doc = await convertBase64(e.target.files[0]);
-                                        setNewDocument({ ...newDocument, url_base64: base64Doc.toString(), file: e.target.value });
-                                        setUploadFileImageError("");
-                                        setUploadButton(false)
-
-                                    } else {
-                                        setNewDocument({ ...newDocument, url_base64: "", file: "" });
-                                        setUploadFileImageError(`Hanya Bisa File PDF`)
-                                        setUploadButton(true)
+                                    </Form.Group>
+                                    {
+                                        uploadFileImageError && <p style={{ color: "red" }}>{uploadFileImageError}</p>
                                     }
 
-                                }} type="file" required={newDocument.id === 0}></Form.Control>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Nama Dokumen</Form.Label>
 
-                            </Form.Group>
-                            {
-                                uploadFileImageError && <p style={{ color: "red" }}>{uploadFileImageError}</p>
-                            }
+                                        <Form.Control onChange={(e) => {
+                                            setNewDocument({ ...newDocument, document_name: e.target.value })
+                                        }} value={newDocument.document_name} type="text" placeholder="" required></Form.Control>
 
-                            <Form.Group className="mb-3">
-                                <Form.Label>Nama Dokumen</Form.Label>
+                                    </Form.Group>
 
-                                <Form.Control onChange={(e) => {
-                                    setNewDocument({ ...newDocument, document_name: e.target.value })
-                                }} value={newDocument.document_name} type="text" placeholder="" required></Form.Control>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Keterangan</Form.Label>
 
-                            </Form.Group>
+                                        <Form.Control onChange={(e) => {
+                                            setNewDocument({ ...newDocument, description: e.target.value })
+                                        }} value={newDocument.description} as="textarea" rows={3} placeholder="" ></Form.Control>
 
-                            <Form.Group className="mb-3">
-                                <Form.Label>Keterangan</Form.Label>
-
-                                <Form.Control onChange={(e) => {
-                                    setNewDocument({ ...newDocument, description: e.target.value })
-                                }} value={newDocument.description} as="textarea" rows={3} placeholder="" ></Form.Control>
-
-                            </Form.Group>
+                                    </Form.Group>
 
 
 
-                            <div style={{
-                                display: "flex",
-                                width: "100%",
-                                justifyContent: "center",
-                                flex: 1,
-                            }}>
-                                <Button style={{ width: 100 }} variant="primary" type="submit" disabled={uploadButton}>
-                                    Simpan
-                                </Button>
-                                <div style={{ paddingRight: 10 }}></div>
-                                <Button style={{ width: 100 }} className="cancel" variant="danger" onClick={() => {
-                                    resetUploadForm();
-                                    loadDocumentData();
-                                    setShowDocumentUploadModal(false);
-                                }}>
-                                    Batal
-                                </Button>
+                                    <div style={{
+                                        display: "flex",
+                                        width: "100%",
+                                        justifyContent: "center",
+                                        flex: 1,
+                                    }}>
+                                        <Button style={{ width: 100 }} variant="primary" type="submit" disabled={uploadButton}>
+                                            Simpan
+                                        </Button>
+                                        <div style={{ paddingRight: 10 }}></div>
+                                        <Button style={{ width: 100 }} className="cancel" variant="danger" onClick={() => {
+                                            resetUploadForm();
+                                            loadDocumentData();
+                                            setShowDocumentUploadModal(false);
+                                        }}>
+                                            Batal
+                                        </Button>
+                                    </div>
+                                </Form>
+
+
+
                             </div>
-                        </Form>
 
+                        </Modal>
 
+                        <Modal size="xl" show={showDocumentDetailModal} onHide={() => {
+                            setShowDocumentDetailModal(false);
+                        }}>
+                            <ContainerBox containerPos="inner" titleCaption={documentToBeViewed.document_name}
+                                useActionContainer={true}
+                                actionContainerChild={
+                                    <div>
+                                        <Button style={{
 
-                    </div>
-
-                </Modal>
-
-                <Modal size="xl" show={showDocumentDetailModal} onHide={() => {
-                    setShowDocumentDetailModal(false);
-                }}>
-                    <ContainerBox containerPos="inner" titleCaption={documentToBeViewed.document_name}
-                        useActionContainer={true}
-                        actionContainerChild={
-                            <div>
-                                <Button style={{
-
-                                }} onClick={() => {
-                                    setShowDocumentDetailModal(false);
-                                }}>
+                                        }} onClick={() => {
+                                            setShowDocumentDetailModal(false);
+                                        }}>
+                                            <div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                alignContent: "center",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                flexDirection: "row",
+                                                alignSelf: "center",
+                                            }}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    alignContent: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    alignSelf: "center",
+                                                    flex: 1,
+                                                }}><XSquareFill size={32} /></div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flex: 8,
+                                                    alignContent: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    alignSelf: "center",
+                                                    paddingLeft: 10,
+                                                    fontWeight: "bold",
+                                                    fontSize: 18,
+                                                }}>Tutup</div>
+                                            </div>
+                                        </Button>
+                                    </div>
+                                }
+                                childContent={
                                     <div style={{
                                         display: "flex",
                                         flex: 1,
-                                        alignContent: "center",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        flexDirection: "row",
-                                        alignSelf: "center",
+                                        flexDirection: "column"
                                     }}>
-                                        <div style={{
-                                            display: "flex",
-                                            alignContent: "center",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            alignSelf: "center",
-                                            flex: 1,
-                                        }}><XSquareFill size={32} /></div>
-                                        <div style={{
-                                            display: "flex",
-                                            flex: 8,
-                                            alignContent: "center",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            alignSelf: "center",
-                                            paddingLeft: 10,
-                                            fontWeight: "bold",
-                                            fontSize: 18,
-                                        }}>Tutup</div>
-                                    </div>
-                                </Button>
-                            </div>
-                        }
-                        childContent={
-                            <div style={{
-                                display: "flex",
-                                flex: 1,
-                                flexDirection: "column"
-                            }}>
-                                <div>
-                                    <Document
-                                        file={documentToBeViewed.url_base64}
-                                        onLoadSuccess={onDocumentLoadSuccess}
-                                        loading={() => {
+                                        <div>
+                                            <Document
+                                                file={documentToBeViewed.url_base64}
+                                                onLoadSuccess={onDocumentLoadSuccess}
+                                                loading={() => {
 
-                                        }}
-                                    ><div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
-                                    }}>
+                                                }}
+                                            ><div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                flexDirection: "row",
+                                                justifyContent: "center",
+                                                alignContent: "center",
+                                            }}>
+                                                    <div style={{
+                                                        display: "flex",
+                                                        flex: 1,
+                                                        flexDirection: "row",
+                                                        justifyContent: "center",
+                                                        alignContent: "center",
+                                                        overflow: "scroll",
+                                                    }}>
+                                                        <Page scale={zoomFactor} pageNumber={pageNumber} />
+                                                        {(pageNumber + 1) < numPages &&
+                                                            <Page scale={zoomFactor} pageNumber={pageNumber + 1} />
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                            </Document>
+                                        </div>
+                                        <div style={{
+                                            display: "flex",
+                                            flex: 1,
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                            alignContent: "center",
+                                        }}>
                                             <div style={{
                                                 display: "flex",
                                                 flex: 1,
                                                 flexDirection: "row",
                                                 justifyContent: "center",
                                                 alignContent: "center",
-                                                overflow: "scroll",
                                             }}>
-                                                <Page scale={zoomFactor} pageNumber={pageNumber} />
-                                                {(pageNumber + 1) < numPages &&
-                                                    <Page scale={zoomFactor} pageNumber={pageNumber + 1} />
-                                                }
-
+                                                <p>
+                                                    Halaman {pageNumber} Dari {numPages}
+                                                </p>
                                             </div>
-                                        </div>
-                                    </Document>
-                                </div>
-                                <div style={{
-                                    display: "flex",
-                                    flex: 1,
-                                    flexDirection: "column",
-                                    justifyContent: "center",
-                                    alignContent: "center",
-                                }}>
-                                    <div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
-                                    }}>
-                                        <p>
-                                            Halaman {pageNumber} Dari {numPages}
-                                        </p>
-                                    </div>
-                                    <div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
-                                        flexWrap: "wrap",
-                                    }}>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5,
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={zoomFactor <= 0.2}
-                                                onClick={() => {
-                                                    setZoomFactor(zoomFactor * 0.75);
-                                                }}
-                                            >
-
-                                                <ZoomOut size={28} />
-                                            </Button>
-                                        </div>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={false}
-                                                onClick={() => {
-                                                    setZoomFactor(0.5);
-                                                }}
-                                            >
-                                                <AspectRatioFill size={28} />
-                                            </Button>
-                                        </div>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5,
-                                            flexWrap: "wrap",
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={zoomFactor >= 10}
-                                                onClick={() => {
-                                                    setZoomFactor(zoomFactor * 1.25);
-                                                }}
-                                            >
-                                                <ZoomIn size={28} />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
-                                        padding: 5
-                                    }}>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={pageNumber <= 1}
-                                                onClick={previousPage}
-                                            >
-
-                                                <ChevronDoubleLeft size={28} />
-                                            </Button>
-                                        </div>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={pageNumber >= numPages}
-                                                onClick={nextPage}
-                                            >
-                                                <ChevronDoubleRight size={28} />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        } />
-
-                </Modal>
-
-                <Modal size="xl" show={showDocumentApprovedModal} onHide={() => {
-                    setShowDocumentApprovedModal(false);
-                }}>
-                    <ContainerBox containerPos="inner" titleCaption={documentToBeApproved.document_name}
-                        useActionContainer={true}
-                        actionContainerChild={
-                            <div>
-                                <Button style={{
-
-                                }} onClick={() => {
-                                    setShowDocumentApprovedModal(false);
-                                }}>
-                                    <div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        alignContent: "center",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        flexDirection: "row",
-                                        alignSelf: "center",
-                                    }}>
-                                        <div style={{
-                                            display: "flex",
-                                            alignContent: "center",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            alignSelf: "center",
-                                            flex: 1,
-                                        }}><XSquareFill size={32} /></div>
-                                        <div style={{
-                                            display: "flex",
-                                            flex: 8,
-                                            alignContent: "center",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            alignSelf: "center",
-                                            paddingLeft: 10,
-                                            fontWeight: "bold",
-                                            fontSize: 18,
-                                        }}>Tutup</div>
-                                    </div>
-                                </Button>
-                            </div>
-                        }
-                        childContent={
-                            <div style={{
-                                display: "flex",
-                                flex: 1,
-                                flexDirection: "column"
-                            }}>
-                                <div>
-                                    <Document
-                                        file={documentToBeApproved.url_base64}
-                                        onLoadSuccess={onDocumentLoadSuccess}
-                                        loading={() => {
-
-                                        }}
-                                    ><div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
-                                    }}>
                                             <div style={{
                                                 display: "flex",
                                                 flex: 1,
                                                 flexDirection: "row",
                                                 justifyContent: "center",
                                                 alignContent: "center",
-                                                overflow: "scroll",
-                                                maxHeight: 600
+                                                flexWrap: "wrap",
                                             }}>
-                                                <Page scale={zoomFactor} pageNumber={pageNumber} />
-                                                {(pageNumber + 1) < numPages &&
-                                                    <Page scale={zoomFactor} pageNumber={pageNumber + 1} />
-                                                }
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5,
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={zoomFactor <= 0.2}
+                                                        onClick={() => {
+                                                            setZoomFactor(zoomFactor * 0.75);
+                                                        }}
+                                                    >
 
+                                                        <ZoomOut size={28} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={false}
+                                                        onClick={() => {
+                                                            setZoomFactor(0.5);
+                                                        }}
+                                                    >
+                                                        <AspectRatioFill size={28} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5,
+                                                    flexWrap: "wrap",
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={zoomFactor >= 10}
+                                                        onClick={() => {
+                                                            setZoomFactor(zoomFactor * 1.25);
+                                                        }}
+                                                    >
+                                                        <ZoomIn size={28} />
+                                                    </Button>
+                                                </div>
                                             </div>
+                                            <div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                flexDirection: "row",
+                                                justifyContent: "center",
+                                                alignContent: "center",
+                                                padding: 5
+                                            }}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={pageNumber <= 1}
+                                                        onClick={previousPage}
+                                                    >
+
+                                                        <ChevronDoubleLeft size={28} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={pageNumber >= numPages}
+                                                        onClick={nextPage}
+                                                    >
+                                                        <ChevronDoubleRight size={28} />
+                                                    </Button>
+                                                </div>
+                                            </div>
+
                                         </div>
-                                    </Document>
-                                </div>
-                                <div style={{
-                                    display: "flex",
-                                    flex: 1,
-                                    flexDirection: "column",
-                                    justifyContent: "center",
-                                    alignContent: "center",
-                                }}>
+                                    </div>
+                                } />
+
+                        </Modal>
+
+                        <Modal size="xl" show={showDocumentApprovedModal} onHide={() => {
+                            setShowDocumentApprovedModal(false);
+                        }}>
+                            <ContainerBox containerPos="inner" titleCaption={documentToBeApproved.document_name}
+                                useActionContainer={true}
+                                actionContainerChild={
+                                    <div>
+                                        <Button style={{
+
+                                        }} onClick={() => {
+                                            setShowDocumentApprovedModal(false);
+                                        }}>
+                                            <div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                alignContent: "center",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                flexDirection: "row",
+                                                alignSelf: "center",
+                                            }}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    alignContent: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    alignSelf: "center",
+                                                    flex: 1,
+                                                }}><XSquareFill size={32} /></div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flex: 8,
+                                                    alignContent: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    alignSelf: "center",
+                                                    paddingLeft: 10,
+                                                    fontWeight: "bold",
+                                                    fontSize: 18,
+                                                }}>Tutup</div>
+                                            </div>
+                                        </Button>
+                                    </div>
+                                }
+                                childContent={
                                     <div style={{
                                         display: "flex",
                                         flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
+                                        flexDirection: "column"
                                     }}>
-                                        <p>
-                                            Halaman {pageNumber} Dari {numPages}
-                                        </p>
-                                    </div>
-                                    <div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
-                                        flexWrap: "wrap",
-                                    }}>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5,
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={zoomFactor <= 0.2}
-                                                onClick={() => {
-                                                    setZoomFactor(zoomFactor * 0.75);
+                                        <div>
+                                            <Document
+                                                file={documentToBeApproved.url_base64}
+                                                onLoadSuccess={onDocumentLoadSuccess}
+                                                loading={() => {
+
                                                 }}
-                                            >
+                                            ><div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                flexDirection: "row",
+                                                justifyContent: "center",
+                                                alignContent: "center",
+                                            }}>
+                                                    <div style={{
+                                                        display: "flex",
+                                                        flex: 1,
+                                                        flexDirection: "row",
+                                                        justifyContent: "center",
+                                                        alignContent: "center",
+                                                        overflow: "scroll",
+                                                        maxHeight: 600
+                                                    }}>
+                                                        <Page scale={zoomFactor} pageNumber={pageNumber} />
+                                                        {(pageNumber + 1) < numPages &&
+                                                            <Page scale={zoomFactor} pageNumber={pageNumber + 1} />
+                                                        }
 
-                                                <ZoomOut size={28} />
-                                            </Button>
+                                                    </div>
+                                                </div>
+                                            </Document>
                                         </div>
                                         <div style={{
                                             display: "flex",
-                                            flexDirection: "row",
+                                            flex: 1,
+                                            flexDirection: "column",
                                             justifyContent: "center",
                                             alignContent: "center",
-                                            padding: 5
                                         }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={false}
-                                                onClick={() => {
-                                                    setZoomFactor(0.5);
-                                                }}
-                                            >
-                                                <AspectRatioFill size={28} />
-                                            </Button>
-                                        </div>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5,
-                                            flexWrap: "wrap",
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={zoomFactor >= 10}
-                                                onClick={() => {
-                                                    setZoomFactor(zoomFactor * 1.25);
-                                                }}
-                                            >
-                                                <ZoomIn size={28} />
-                                            </Button>
+                                            <div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                flexDirection: "row",
+                                                justifyContent: "center",
+                                                alignContent: "center",
+                                            }}>
+                                                <p>
+                                                    Halaman {pageNumber} Dari {numPages}
+                                                </p>
+                                            </div>
+                                            <div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                flexDirection: "row",
+                                                justifyContent: "center",
+                                                alignContent: "center",
+                                                flexWrap: "wrap",
+                                            }}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5,
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={zoomFactor <= 0.2}
+                                                        onClick={() => {
+                                                            setZoomFactor(zoomFactor * 0.75);
+                                                        }}
+                                                    >
+
+                                                        <ZoomOut size={28} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={false}
+                                                        onClick={() => {
+                                                            setZoomFactor(0.5);
+                                                        }}
+                                                    >
+                                                        <AspectRatioFill size={28} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5,
+                                                    flexWrap: "wrap",
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={zoomFactor >= 10}
+                                                        onClick={() => {
+                                                            setZoomFactor(zoomFactor * 1.25);
+                                                        }}
+                                                    >
+                                                        <ZoomIn size={28} />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <div style={{
+                                                display: "flex",
+                                                flex: 1,
+                                                flexDirection: "row",
+                                                justifyContent: "center",
+                                                alignContent: "center",
+                                                padding: 5
+                                            }}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={pageNumber <= 1}
+                                                        onClick={previousPage}
+                                                    >
+
+                                                        <ChevronDoubleLeft size={28} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    justifyContent: "center",
+                                                    alignContent: "center",
+                                                    padding: 5
+                                                }}>
+                                                    <Button
+                                                        variant="primary"
+                                                        type="button"
+                                                        disabled={pageNumber >= numPages}
+                                                        onClick={nextPage}
+                                                    >
+                                                        <ChevronDoubleRight size={28} />
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+
+                                            <Button variant="success" onClick={() => {
+                                                ApproveDocument(documentToBeApproved.id)
+                                            }} hidden={documentStatus === "Approved"} type="submit">Setuju</Button>
+
                                         </div>
                                     </div>
-                                    <div style={{
-                                        display: "flex",
-                                        flex: 1,
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        alignContent: "center",
-                                        padding: 5
-                                    }}>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={pageNumber <= 1}
-                                                onClick={previousPage}
-                                            >
+                                } />
 
-                                                <ChevronDoubleLeft size={28} />
-                                            </Button>
-                                        </div>
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "center",
-                                            alignContent: "center",
-                                            padding: 5
-                                        }}>
-                                            <Button
-                                                variant="primary"
-                                                type="button"
-                                                disabled={pageNumber >= numPages}
-                                                onClick={nextPage}
-                                            >
-                                                <ChevronDoubleRight size={28} />
-                                            </Button>
-                                        </div>
-                                    </div>
+                        </Modal>
 
-
-                                    <Button variant="success" onClick={() => {
-                                        ApproveDocument(documentToBeApproved.id)
-                                    }} hidden={documentStatus === "Approved"} type="submit">Setuju</Button>
-
-                                </div>
-                            </div>
-                        } />
-
-                </Modal>
-
-            </Container >
-        </div >
+                    </Container >
+                </div >
             </div >
 
         </>

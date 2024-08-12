@@ -11,11 +11,12 @@ import {
 import "../../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, getPackageStepById, getPackageStep, getPackageById, convertBase64,
+    isTokenValid, getPackageStepById, getPackageStep, getDetailPackage, convertBase64,
     insertUpdatePackageStep3,
     getPackageStep3ById,
     getPackageStep3Document,
-    updateStep3DocumentStatus
+    updateStep3DocumentStatus,
+    deleteDocumentStep
 } from "../../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../../Components/Sidebar";
 import LoadingAnimation from "../../../../Components/Loading";
@@ -59,6 +60,8 @@ export default function PackageStep3Page() {
     const [showDocumentApprovedModal, setShowDocumentApprovedModal] = useState(false);
     const [zoomFactor, setZoomFactor] = useState(0.5);
     const [documentStatus, setDocumentStatus] = useState("");
+    const [removeId, setRemoveId] = useState("");
+
 
     const [newDocument, setNewDocument] = useState({
         id: 0,
@@ -109,6 +112,10 @@ export default function PackageStep3Page() {
     }, [location.state]);
 
     useEffect(() => {
+        if (newDocument.id !== 0) {
+            setShowDocumentUploadModal(true);
+        }
+
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -138,6 +145,12 @@ export default function PackageStep3Page() {
             loadPackageStep();
         }
     }, [packageId])
+
+    useEffect(() => {
+        if (removeId !== "")
+            removeDocument();
+    }, [removeId])
+
 
     useEffect(() => {
         if (stepDocumentId !== "")
@@ -248,7 +261,7 @@ export default function PackageStep3Page() {
 
     const initPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, location.state.packageId);
+            let response = await getDetailPackage(cookies.token, location.state.packageId);
             console.log(response);
             if (response) {
                 setDetailPackage(response);
@@ -403,6 +416,22 @@ export default function PackageStep3Page() {
         }
     }
 
+    const removeDocument = async () => {
+        try {
+            let response = await deleteDocumentStep(cookies.token, removeId, 3);
+            if (response === 0) {
+                alert('Laporan Telah Dihapus');
+                loadDocumentData();
+            } else {
+                alert('Gagal Menghapus Laporan');
+            }
+            setRemoveId("");
+        } catch (exception) {
+
+        }
+    }
+
+
 
     return (
         <>
@@ -447,7 +476,7 @@ export default function PackageStep3Page() {
                             opacity: 0.1,
                             pointerEvents: "none",
                             zIndex: 0,
-                            backgroundColor: "rgba(255, 255, 255, 0.5)" 
+                            backgroundColor: "rgba(255, 255, 255, 0.5)"
                         }}></div>
                         <div style={{
                             display: "flex",
@@ -640,8 +669,11 @@ export default function PackageStep3Page() {
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Status Dokumen</th>
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Keterangan</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 2} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
                                                                 <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 1}>Setuju</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2}>Hapus</th>
+
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -655,6 +687,9 @@ export default function PackageStep3Page() {
                                                                             <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setStepDocumentId(docs.id)
                                                                             }}><EyeFill /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                setNewDocument(docs)
+                                                                            }}><PencilFill /></Button></td>
 
                                                                             <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
@@ -666,6 +701,13 @@ export default function PackageStep3Page() {
                                                                                 //     setDocumentStatus("Approved")
                                                                                 // }
                                                                             }}><CheckLg /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign: "middle" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                    if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
+                                                                                        setRemoveId(docs.id)
+                                                                                    }
+
+                                                                                }}><Trash /></Button></td>
                                                                         </tr>
                                                                     )
                                                                 })

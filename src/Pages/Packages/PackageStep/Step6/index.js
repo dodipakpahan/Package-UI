@@ -11,11 +11,12 @@ import {
 import "../../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, getPackageStepById, getPackageStep, getPackageById, convertBase64,
+    isTokenValid, getPackageStepById, getPackageStep, getDetailPackage, convertBase64,
     insertUpdatePackageStep6,
     getPackageStep6ById,
     getPackageStep6Document,
-    updateStep6DocumentStatus
+    updateStep6DocumentStatus,
+    deleteDocumentStep
 } from "../../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../../Components/Sidebar";
 import LoadingAnimation from "../../../../Components/Loading";
@@ -60,6 +61,8 @@ export default function PackageStep6Page() {
     const [showDocumentApprovedModal, setShowDocumentApprovedModal] = useState(false);
     const [documentStatus, setDocumentStatus] = useState("");
     const [approveId, setApproveId] = useState("");
+    const [removeId, setRemoveId] = useState("");
+
 
     const [documentToBeApproved, setDocumentToBeApproved] = useState({
         id: 0,
@@ -108,6 +111,10 @@ export default function PackageStep6Page() {
     }, [location.state]);
 
     useEffect(() => {
+        if (newDocument.id !== 0){
+            setShowDocumentUploadModal(true);
+        }
+     
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -115,6 +122,13 @@ export default function PackageStep6Page() {
         }
         submitNewDocument();
     }, [newDocument]);
+
+    useEffect(()=>{
+        if(removeId !== "")
+            removeDocument();
+    },[removeId])
+
+
 
     useEffect(() => {
         if (documentToBeViewed.id !== 0)
@@ -262,7 +276,7 @@ export default function PackageStep6Page() {
 
     const initPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, location.state.packageId);
+            let response = await getDetailPackage(cookies.token, location.state.packageId);
             console.log(response);
             if (response) {
                 setDetailPackage(response);
@@ -413,6 +427,23 @@ export default function PackageStep6Page() {
 
         }
     }
+
+    const removeDocument = async()=>{
+        try {
+            let response = await deleteDocumentStep(cookies.token, removeId,6);
+            if(response === 0){
+                alert('Laporan Telah Dihapus');
+                loadDocumentData();
+            }else{
+                alert('Gagal Menghapus Laporan');
+            }
+            setRemoveId("");
+        } catch (exception) {
+            
+        }
+    }
+
+
 
 
 
@@ -661,8 +692,12 @@ export default function PackageStep6Page() {
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Status</th>
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Keterangan</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 2} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 1}>Setuju</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2}>Hapus</th>
+
+
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -676,6 +711,10 @@ export default function PackageStep6Page() {
                                                                             <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setStepDocumentId(docs.id)
                                                                             }}><EyeFill /></Button></td>
+                                                                             <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                            setNewDocument(docs)
+                                                                                        }}><PencilFill /></Button></td>
+
                                                                             <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
                                                                             }}><Download /></Button></td>
@@ -687,6 +726,13 @@ export default function PackageStep6Page() {
                                                                                 //     setDocumentStatus("Approved")
                                                                                 // }
                                                                             }}><CheckLg /></Button></td>
+                                                                            <td  hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign: "middle" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
+                                                                                    setRemoveId(docs.id)
+                                                                                }
+
+                                                                            }}><Trash /></Button></td>
 
 
                                                                         </tr>

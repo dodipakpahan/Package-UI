@@ -11,10 +11,11 @@ import {
 import "../../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, getPackageStepById, getPackageStep, getPackageById, convertBase64,
-    insertUpdatePackageStep10,getPackageStep10ById,
+    isTokenValid, getPackageStepById, getPackageStep, getDetailPackage, convertBase64,
+    insertUpdatePackageStep10, getPackageStep10ById,
     updateStep10DocumentStatus,
     getPackageStep10Document,
+    deleteDocumentStep
 } from "../../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../../Components/Sidebar";
 import LoadingAnimation from "../../../../Components/Loading";
@@ -37,6 +38,7 @@ export default function PackageStep10Page() {
     const [cookies, setCookie] = useCookies(["token"]);
     const navigate = useNavigate();
     const location = useLocation();
+    const [removeId, setRemoveId] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [stepId, setStepId] = useState("");
     const [listDocument, setListDocument] = useState([]);
@@ -60,7 +62,7 @@ export default function PackageStep10Page() {
     const [showDocumentApprovedModal, setShowDocumentApprovedModal] = useState(false);
     const [zoomFactor, setZoomFactor] = useState(0.5);
     const [documentStatus, setDocumentStatus] = useState("");
-   
+
 
     const [newDocument, setNewDocument] = useState({
         id: 0,
@@ -107,6 +109,10 @@ export default function PackageStep10Page() {
     }, [location.state]);
 
     useEffect(() => {
+        if (newDocument.id !== 0) {
+            setShowDocumentUploadModal(true);
+        }
+
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -131,12 +137,12 @@ export default function PackageStep10Page() {
         }
     }, [approveId]);
 
-    useEffect(()=>{
-        if(downloadDocumentId !== "")
+    useEffect(() => {
+        if (downloadDocumentId !== "")
             downloadData();
-    },[downloadDocumentId])
+    }, [downloadDocumentId])
 
- 
+
 
     useEffect(() => {
         if (stepId !== "" && stepId !== null) {
@@ -171,7 +177,7 @@ export default function PackageStep10Page() {
         }
     }, [showDocumentDetailModal]);
 
-    
+
     useEffect(() => {
         if (!showDocumentApprovedModal) {
             setDocumentToBeApproved({
@@ -186,7 +192,14 @@ export default function PackageStep10Page() {
         }
     }, [showDocumentApprovedModal]);
 
- 
+    useEffect(() => {
+        if (removeId !== "")
+            removeDocument();
+    }, [removeId])
+
+
+
+
 
     const initPackageStep = async () => {
         try {
@@ -230,7 +243,7 @@ export default function PackageStep10Page() {
 
     const initPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, location.state.packageId);
+            let response = await getDetailPackage(cookies.token, location.state.packageId);
             console.log(response);
             if (response) {
                 setDetailPackage(response);
@@ -299,7 +312,7 @@ export default function PackageStep10Page() {
         }
     }
 
-  
+
 
     const loadDocumentData = async () => {
         try {
@@ -323,7 +336,7 @@ export default function PackageStep10Page() {
         }
     }
 
-   
+
 
     const loadDocumentApproved = async () => {
         try {
@@ -384,6 +397,23 @@ export default function PackageStep10Page() {
 
     };
 
+    const removeDocument = async () => {
+        try {
+            let response = await deleteDocumentStep(cookies.token, removeId, 10);
+            if (response === 0) {
+                alert('Laporan Telah Dihapus');
+                loadDocumentData();
+            } else {
+                alert('Gagal Menghapus Laporan');
+            }
+            setRemoveId("");
+        } catch (exception) {
+
+        }
+    }
+
+
+
     return (
         <>
 
@@ -413,7 +443,7 @@ export default function PackageStep10Page() {
                         // alignItems: "center",
                         // alignSelf: "center"
                     }} >
-                         <div style={{
+                        <div style={{
                             position: "absolute",
                             top: 0,
                             left: 0,
@@ -427,7 +457,7 @@ export default function PackageStep10Page() {
                             opacity: 0.1,
                             pointerEvents: "none",
                             zIndex: 0,
-                            backgroundColor: "rgba(255, 255, 255, 0.5)" 
+                            backgroundColor: "rgba(255, 255, 255, 0.5)"
                         }}></div>
                         <div style={{
                             display: "flex",
@@ -468,7 +498,7 @@ export default function PackageStep10Page() {
                                     width: "100%",
                                     padding: 10
                                 }}>
-                                   <DetaiPackage
+                                    <DetaiPackage
                                         packageDetail={detailPackage}
                                     />
 
@@ -488,7 +518,7 @@ export default function PackageStep10Page() {
                                             height: 300,
                                             // paddingRight: 10
                                         }}>
-                                           <div style={{
+                                            <div style={{
                                                 alignItems: "center",
                                                 backgroundColor: "#498dd9",
                                                 // borderStyle:"solid"
@@ -506,15 +536,15 @@ export default function PackageStep10Page() {
                                             <div style={{
                                                 paddingBottom: 10
                                             }}></div>
-                                            
-                                        
+
+
                                             <div style={{
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 padding: 10
                                             }}>
                                                 {
-                                                    cookies.userRole === 2 && 
+                                                    cookies.userRole === 2 &&
                                                     <>
                                                         <div>Unduh Format Dokumen</div>
                                                         <Button style={{
@@ -535,13 +565,13 @@ export default function PackageStep10Page() {
                                                     flexDirection: "column"
                                                 }}>
                                                     <div style={{ paddingBottom: 20 }}></div>
-                                                    <div hidden={cookies.userRole !== 2 } style={{
+                                                    <div hidden={cookies.userRole !== 2} style={{
                                                         display: "flex",
                                                         justifyContent: "flex-end",
                                                         width: "100%",
                                                         paddingRight: 30
                                                     }}>
-                                                        <Button hidden={listDocument.length > 0 } variant="primary" style={{
+                                                        <Button hidden={listDocument.length > 0} variant="primary" style={{
                                                             width: 130
                                                         }} onClick={() => {
                                                             setShowDocumentUploadModal(true);
@@ -578,14 +608,16 @@ export default function PackageStep10Page() {
                                                         </Button>
                                                     </div>
                                                     <div style={{ paddingBottom: 10 }}></div>
-                                                    <Table  striped bordered hover>
+                                                    <Table striped bordered hover>
                                                         <thead >
                                                             <tr>
-                                                                <th style={{ textAlign: "center", verticalAlign:'middle' }}>Nama Dokumen</th>
-                                                                <th style={{ textAlign: "center", verticalAlign:'middle' }}>Keterangan</th>
-                                                                <th style={{ width: 130, textAlign: "center", verticalAlign:"middle" }}>Lihat Dokumen</th>
-                                                                <th style={{ width: 130, textAlign: "center", verticalAlign:"middle" }}>Unduh</th>
-                                                      
+                                                                <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Nama Dokumen</th>
+                                                                <th style={{ textAlign: "center", verticalAlign: 'middle' }}>Keterangan</th>
+                                                                <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 2} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
+                                                                <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2}>Hapus</th>
+
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -598,11 +630,20 @@ export default function PackageStep10Page() {
                                                                             <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setStepDocumentId(docs.id)
                                                                             }}><EyeFill /></Button></td>
-                                                                              <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                setNewDocument(docs)
+                                                                            }}><PencilFill /></Button></td>
+                                                                            <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
                                                                             }}><Download /></Button></td>
-                                                                           
-                                                                         
+
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign: "middle" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                    if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
+                                                                                        setRemoveId(docs.id)
+                                                                                    }
+
+                                                                                }}><Trash /></Button></td>
 
                                                                         </tr>
                                                                     )
@@ -1144,7 +1185,7 @@ export default function PackageStep10Page() {
                                             </div>
 
 
-                                            <Button variant="success" onClick={()=>{
+                                            <Button variant="success" onClick={() => {
                                                 ApproveDocument(documentToBeApproved.id)
                                             }} hidden={documentStatus === "Approved"} type="submit">Setuju</Button>
 

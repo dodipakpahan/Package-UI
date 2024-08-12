@@ -11,11 +11,12 @@ import {
 import "../../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, getPackageStepById, getPackageStep, getPackageById, convertBase64,
+    isTokenValid, getPackageStepById, getPackageStep, getDetailPackage, convertBase64,
     insertUpdatePackageStep2,
     getPackageStep2ById,
     getPackageStep2Document,
-    updateStep2DocumentStatus
+    updateStep2DocumentStatus,
+    deleteDocumentStep
 } from "../../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../../Components/Sidebar";
 import LoadingAnimation from "../../../../Components/Loading";
@@ -62,6 +63,10 @@ export default function PackageStep2Page() {
     const [zoomFactor, setZoomFactor] = useState(0.5);
     const [documentStatus, setDocumentStatus] = useState("");
     const [approveId, setApproveId] = useState("");
+
+    const [removeId, setRemoveId] = useState("");
+
+
 
     const [newDocument, setNewDocument] = useState({
         id: 0,
@@ -111,6 +116,10 @@ export default function PackageStep2Page() {
     }, [location.state]);
 
     useEffect(() => {
+        if (newDocument.id !== 0){
+            setShowDocumentUploadModal(true);
+        }
+
         async function submitNewDocument() {
             if (newDocument.done) {
                 await uploadDocument();
@@ -191,6 +200,12 @@ export default function PackageStep2Page() {
     }, [documentToBeApproved])
 
 
+    useEffect(() => {
+        if (removeId !== "")
+            removeDocument();
+    }, [removeId])
+
+
 
     const initPackageStep = async () => {
         try {
@@ -263,7 +278,7 @@ export default function PackageStep2Page() {
 
     const initPackage = async () => {
         try {
-            let response = await getPackageById(cookies.token, location.state.packageId);
+            let response = await getDetailPackage(cookies.token, location.state.packageId);
             if (response) {
                 setDetailPackage(response);
             }
@@ -415,6 +430,23 @@ export default function PackageStep2Page() {
 
         }
     }
+
+    const removeDocument = async () => {
+        try {
+            let response = await deleteDocumentStep(cookies.token, removeId, 2);
+            if (response === 0) {
+                alert('Laporan Telah Dihapus');
+                loadDocumentData();
+            } else {
+                alert('Gagal Menghapus Laporan');
+            }
+            setRemoveId("");
+        } catch (exception) {
+
+        }
+    }
+
+
 
     return (
         <>
@@ -630,7 +662,7 @@ export default function PackageStep2Page() {
                                                         width: "100%",
                                                         paddingRight: 30
                                                     }}>
-                                                        <Button hidden={cookies.userRole === 4 ? listDocument.length === 2 : (listDocument.length === 1 || listDocument.length> 2)} variant="primary" style={{
+                                                        <Button hidden={cookies.userRole === 4 ? listDocument.length === 2 : (listDocument.length === 1 || listDocument.length > 2)} variant="primary" style={{
                                                             width: 130
                                                         }} onClick={() => {
                                                             setShowDocumentUploadModal(true);
@@ -674,8 +706,10 @@ export default function PackageStep2Page() {
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Status Dokumen</th>
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Keterangan</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 2 && cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
                                                                 <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
                                                                 <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 1}>Setuju</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2 && cookies.userRole !== 4}>Hapus</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -689,6 +723,9 @@ export default function PackageStep2Page() {
                                                                             <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setStepDocumentId(docs.id)
                                                                             }}><EyeFill /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2 && cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                setNewDocument(docs)
+                                                                            }}><PencilFill /></Button></td>
                                                                             <td style={{ textAlign: "center", verticalAlign: "middle" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
                                                                             }}><Download /></Button></td>
@@ -698,6 +735,14 @@ export default function PackageStep2Page() {
                                                                                     setApproveId(docs.id);
                                                                                     setDocumentStatus(docs.document_status_name)
                                                                                 }}><CheckLg /></Button></td>
+
+                                                                            <td hidden={cookies.userRole !== 2 && cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "middle" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                                    if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
+                                                                                        setRemoveId(docs.id)
+                                                                                    }
+
+                                                                                }}><Trash /></Button></td>
 
 
                                                                         </tr>
