@@ -71,6 +71,7 @@ export default function LoginPage() {
                 setCookie("userName", loginData.username, { path: "/" });
                 setCookie("userEmail", loginData.email, { path: "/" });
                 setCookie("userRole", loginData.user_role, { path: "/" });
+                setCookie("accountType", loginData.account_type,{path: "/"})
                 navigate("/Dashboard");
             } else {
                 setErrorMessage("Failed to sign in, wrong username and/or password.");

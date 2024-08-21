@@ -368,7 +368,7 @@ export default function PackageStep12Page() {
     const uploadDocument = async () => {
         return new Promise(async (resolve, reject) => {
             try {
-                let res = await insertUpdatePackageStep12(cookies.token, newDocument, packageId, window.location.pathname);
+                let res = await insertUpdatePackageStep12(cookies.token, newDocument, packageId, window.location.pathname, detailPackage.account_type);
                 alert('Data Telah Disimpan');
                 setShowDocumentUploadModal(false);
                 setModalDocumentTab2(false);
@@ -521,7 +521,7 @@ export default function PackageStep12Page() {
             stepPayload.provider_name = detailPackage.provider_name;
             stepPayload.document_type = documentToBeApproved.document_type;
             stepPayload.approvals = approval === 0? false : true;
-            let response = await updateStep12DocumentStatus(cookies.token, stepPayload);
+            let response = await updateStep12DocumentStatus(cookies.token, stepPayload, detailPackage.account_type);
             if (response.error_code === 0) {
                 alert(baApproval === 1 ?'Dokumen Telah Disetujui' :"Dokumen Telah Ditolak");
                 loadDocumentData();
@@ -840,7 +840,8 @@ export default function PackageStep12Page() {
                                                                                         <td style={{ textAlign: "center" }} >{(page * itemPerPage) + (index + 1)}</td>
                                                                                         <td>{docs.document_name}</td>
                                                                                         <td>{docs.start_date ? moment(docs.start_date).format("DD-MM-yyyy") : ""}</td>
-                                                                                        <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                                        <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}>
+                                                                                        <Button style={{ width: 50 }} onClick={() => {
                                                                                             setNewDocument(docs)
                                                                                         }}><PencilFill /></Button></td>
                                                                                         <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
@@ -977,7 +978,7 @@ export default function PackageStep12Page() {
                                                                 </Table>
 
                                                                 <div style={{ paddingBottom: 30 }}></div>
-                                                                <h4>Gambar Kerja</h4>
+                                                                <h4>Shopdrawing</h4>
                                                                 <Table className="packageTableDetail" style={{ width: '80%', borderCollapse: 'collapse' }}>
                                                                     <thead >
                                                                         <tr>
@@ -1020,7 +1021,7 @@ export default function PackageStep12Page() {
                                                                 </Table>
 
                                                                 <div style={{ paddingBottom: 30 }}></div>
-                                                                <h4>Pengajuan Material</h4>
+                                                                <h4>Approval Material</h4>
                                                                 <Table className="packageTableDetail" style={{ width: '80%', borderCollapse: 'collapse' }}>
                                                                     <thead >
                                                                         <tr>
@@ -1159,7 +1160,7 @@ export default function PackageStep12Page() {
 
                                                         </div>
                                                     </Tab>
-                                                    <Tab disabled={listLateNotice.length === 0} eventKey="tabSCM" title={`Rapat Pembuktian`}>
+                                                    <Tab disabled={!listLateNotice.length === 0} eventKey="tabSCM" title={`Rapat Pembuktian`}>
                                                         <div style={{
                                                             display: "flex",
                                                             flexDirection: "column",

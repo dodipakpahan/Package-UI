@@ -98,7 +98,7 @@ export default function PackageStep18Page() {
     }, [location.state]);
 
     useEffect(() => {
-        if (newDocument.id !== 0){
+        if (newDocument.id !== 0) {
             setShowDocumentUploadModal(true);
         }
 
@@ -430,9 +430,20 @@ export default function PackageStep18Page() {
                                     width: "100%",
                                     padding: 10
                                 }}>
-                                    <DetaiPackage
-                                        packageDetail={detailPackage}
-                                    />
+                                    <div style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        flex: 4,
+                                        // borderStyle: "solid",
+                                        height: 400,
+                                        // paddingRight: 10
+                                    }}>
+
+                                        <DetaiPackage
+                                            packageDetail={detailPackage}
+                                        />
+                                    </div>
+
 
                                     <div style={{
                                         display: "flex",
@@ -461,7 +472,7 @@ export default function PackageStep18Page() {
                                                 borderColor: "gray"
                                             }}>
                                                 <div style={{ paddingLeft: 10, alignItems: "center", display: "flex", fontSize: 25 }}>
-                                                    <div>Unduh dan Unggah Dokumen</div>
+                                                    <div>Unggah Dokumen</div>
                                                 </div>
 
                                             </div>
@@ -477,13 +488,13 @@ export default function PackageStep18Page() {
                                                 {
                                                     cookies.userRole === 2 &&
                                                     <>
-                                                        <div>Unduh Format Dokumen</div>
+                                                        {/* <div>Unduh Format Dokumen</div>
                                                         <Button style={{
                                                             width: 150,
                                                             height: 40
                                                         }} onClick={() => {
                                                             handleDownload()
-                                                        }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FileWord size={20} /> Unduh Format Word</div> </Button>
+                                                        }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FileWord size={20} /> Unduh Format Word</div> </Button> */}
 
 
 
@@ -503,7 +514,7 @@ export default function PackageStep18Page() {
                                                         width: "100%",
                                                         paddingRight: 30
                                                     }}>
-                                                        <Button  variant="primary" style={{
+                                                        <Button variant="primary" style={{
                                                             width: 130
                                                         }} onClick={() => {
                                                             setShowDocumentUploadModal(true);
@@ -543,13 +554,13 @@ export default function PackageStep18Page() {
                                                     <Table striped bordered hover>
                                                         <thead >
                                                             <tr>
-                                                                <th style={{ textAlign: "center", verticalAlign: "middle" }}>Nama Dokumen</th>
+                                                                <th style={{ width:400,textAlign: "center", verticalAlign: "middle" }}>Nama Dokumen</th>
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Keterangan</th>
-                                                                <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
-                                                                <th hidden={cookies.userRole !== 2} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
+                                                                <th style={{ width: 85, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 2} style={{ width: 85, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
 
-                                                                <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
-                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2}>Hapus</th>
+                                                                <th style={{ width: 85, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
+                                                                <th style={{ width: 85, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 2}>Hapus</th>
 
                                                             </tr>
                                                         </thead>
@@ -560,18 +571,19 @@ export default function PackageStep18Page() {
                                                                         <tr key={index}>
                                                                             <td>{docs.document_name}</td>
                                                                             <td>{docs.description}</td>
-                                                                            <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                            <td style={{ textAlign: "center", verticalAlign:"top" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setStepDocumentId(docs.id)
                                                                             }}><EyeFill /></Button></td>
-                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
-                                                                                            setNewDocument(docs)
-                                                                                        }}><PencilFill /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign:"top" }}>
+                                                                                <Button disabled={docs.created_by !== cookies.userId || docs.document_status_name === "Disetujui"} style={{ width: 50 }} onClick={() => {
+                                                                                setNewDocument(docs)
+                                                                            }}><PencilFill /></Button></td>
 
-                                                                            <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                            <td style={{ textAlign: "center", verticalAlign:"top" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
                                                                             }}><Download /></Button></td>
-                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign: "middle" }}>
-                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                            <td hidden={cookies.userRole !== 2} style={{ textAlign: "center", verticalAlign: "top" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui" || docs.created_by !== cookies.userId} variant="danger" style={{ width: 50 }} onClick={() => {
                                                                                     if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
                                                                                         setRemoveId(docs.id)
                                                                                     }

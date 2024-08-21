@@ -12,6 +12,7 @@ import craneLogo from "../../Assets/images/lift.png"
 import craneLogo2 from "../../Assets/images/tower-crane.png"
 import home from "../../Assets/images/home.png"
 import userLogo from "../../Assets/images/userLogo.png"
+import lockPassword from "../../Assets/images/padlock.png"
 
 function SideNavigationBar({
   isOpen,
@@ -34,7 +35,7 @@ function SideNavigationBar({
   return (
     <>
       <div style={{ display: 'flex', minHeight: '100vh', borderRightStyle:"solid",borderWidth:3, borderColor:"#f4f6f9" }}>
-        <Sidebar width='200px'
+        <Sidebar width='230px'
           rootStyles={{
             [`.${sidebarClasses.container}`]: {
               // backgroundColor: '#0b2948',
@@ -79,11 +80,14 @@ function SideNavigationBar({
             <MenuItem> Line charts </MenuItem>
           </SubMenu> */}
             <MenuItem component={<Link to="/Package" />} icon={<img src={craneLogo} alt="Icon" style={{ width: '35px', height: '35px', color:"white", alignItems:"center" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Paket</div></MenuItem>
-            
-            {
-              cookies.userRole === 1 &&
-            <MenuItem component={<Link to="/UserAccount" />} icon={<img src={userLogo} alt="Icon" style={{ width: '35px', height: '35px', color:"white", alignItems:"center" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Akun </div></MenuItem>
+            <MenuItem component={<Link to="/ChangePassword" />} icon={<img src={lockPassword} alt="Icon" style={{ width: '35px', height: '35px', color:"white", alignItems:"center" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Kata Sandi</div></MenuItem>
 
+            {
+              cookies.userRole === 1 && cookies.accountType === "ce25664b-547b-44b6-b5c4-07cb76450321" &&
+              <>
+              <MenuItem component={<Link to="/UserAccount" />} icon={<img src={userLogo} alt="Icon" style={{ width: '35px', height: '35px', color:"white", alignItems:"center" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Akun </div></MenuItem>
+              <MenuItem component={<Link to="/AccountType" />} icon={<img src={userLogo} alt="Icon" style={{ width: '35px', height: '35px', color:"white", alignItems:"center" }} />}> <div style={{fontSize:25, alignItems:"center"}}>Jenis Akun </div></MenuItem>
+              </>
               
             }
               {/* <MenuItem component={<Link to="/PackageProcess" />} icon={<Hourglass size={30} />}> Proses Paket</MenuItem> */}

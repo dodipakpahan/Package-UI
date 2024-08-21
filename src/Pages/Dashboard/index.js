@@ -38,13 +38,13 @@ export default function DashboardPage() {
 
     const loadCountPackage = async () => {
         try {
-            let total = await getCountTotalPackage(cookies.token, cookies.userRole);
+            let total = await getCountTotalPackage(cookies.token, cookies.userRole, cookies.accountType);
             setTotalPackage(total);
 
-            let totalComplete = await getCountTotalPackageComplete(cookies.token, cookies.userRole);
+            let totalComplete = await getCountTotalPackageComplete(cookies.token, cookies.userRole, cookies.accountType);
             setTotalPackageComplete(totalComplete);
 
-            let totalInProgress = await getCountTotalPackageInProgress(cookies.token, cookies.userRole);
+            let totalInProgress = await getCountTotalPackageInProgress(cookies.token, cookies.userRole, cookies.accountType);
             setTotalPackageInProgress(totalInProgress)
             setIsLoading(false);
         } catch (exception) {

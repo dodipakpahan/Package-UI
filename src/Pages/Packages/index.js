@@ -92,12 +92,13 @@ export default function PackagePage() {
 
     const loadPackage = async () => {
         try {
-            let countryCount = await getCountPackage(cookies.token, searchQuery, false, cookies.userRole);
+            let countryCount = await getCountPackage(cookies.token, searchQuery, false, cookies.userRole, cookies.accountType);
             let totalPage = countryCount / itemPerPage;
             setTotalPage(totalPage);
 
-            let response = await getPackage(cookies.token, page, itemPerPage, orderBy.value, descending, searchQuery, false, cookies.userRole);
-            console.log(response);
+            let response = await getPackage(cookies.token, page, itemPerPage, orderBy.value, descending, searchQuery, false, cookies.userRole, cookies.accountType);
+            console.log(cookies);
+          
             setListPackage(response)
             setIsLoading(false);
             setResetSearch(0);

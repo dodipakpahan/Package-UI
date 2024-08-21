@@ -243,6 +243,34 @@ export default function PackageStep8Page() {
         link.click();
     };
 
+    const handleDownloadRPMK = () => {
+        // Create a link element
+        const link = document.createElement('a');
+
+        // Set the href attribute to the path of the file in the public directory
+        link.href = `${process.env.PUBLIC_URL}/docs/template_rpmk.pdf`;
+
+        // Set the download attribute with the filename
+        link.download = 'format_rencana_mutu.pdf';
+
+        // Programmatically click the link to trigger the download
+        link.click();
+    };
+
+    const handleDownloadRKK = () => {
+        // Create a link element
+        const link = document.createElement('a');
+
+        // Set the href attribute to the path of the file in the public directory
+        link.href = `${process.env.PUBLIC_URL}/docs/template_rkk.pdf`;
+
+        // Set the download attribute with the filename
+        link.download = 'format_rencana_mutu.pdf';
+
+        // Programmatically click the link to trigger the download
+        link.click();
+    };
+
     const initPackage = async () => {
         try {
             let response = await getDetailPackage(cookies.token, location.state.packageId);
@@ -259,7 +287,7 @@ export default function PackageStep8Page() {
         return new Promise(async (resolve, reject) => {
             try {
                 console.log(newDocument);
-                let res = await insertUpdatePackageStep8(cookies.token, newDocument, packageId, window.location.pathname);
+                let res = await insertUpdatePackageStep8(cookies.token, newDocument, packageId, window.location.pathname, detailPackage.account_type);
                 setShowDocumentUploadModal(false);
                 resetUploadForm();
                 loadDocumentData();
@@ -360,7 +388,7 @@ export default function PackageStep8Page() {
             stepPayload.path = window.location.pathname;
             stepPayload.provider_name = detailPackage.provider_name;
             stepPayload.document_type = documentToBeApproved.document_type;
-            let response = await updateStep8DocumentStatus(cookies.token, stepPayload);
+            let response = await updateStep8DocumentStatus(cookies.token, stepPayload, detailPackage.account_type);
             if (response.error_code === 0) {
                 alert('Dokumen Telah Disetujui');
                 loadDocumentData();
@@ -500,9 +528,20 @@ export default function PackageStep8Page() {
                                     width: "100%",
                                     padding: 10
                                 }}>
-                                    <DetaiPackage
-                                        packageDetail={detailPackage}
-                                    />
+                                    <div style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        flex: 4,
+                                        // borderStyle: "solid",
+                                        height: 400,
+                                        // paddingRight: 10
+                                    }}>
+
+                                        <DetaiPackage
+                                            packageDetail={detailPackage}
+                                        />
+                                    </div>
+
 
                                     <div style={{
                                         display: "flex",
@@ -548,14 +587,41 @@ export default function PackageStep8Page() {
                                                 {
                                                     cookies.userRole === 4 &&
                                                     <>
-                                                        <div>Format Rencana Mutu Pekerjaan Konstruksi</div>
+                                                        {/* <div>Format Rencana Mutu Pekerjaan Konstruksi</div>
                                                         <Button style={{
                                                             width: 150,
                                                             height: 40
                                                         }} onClick={() => {
                                                             handleDownload()
-                                                        }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FilePdf size={20} /> Unduh Format </div> </Button>
+                                                        }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FilePdf size={20} /> Unduh Format </div> </Button> */}
 
+                                                        <div style={{ display: "flex", flexDirection: "column", paddingBottom: 5 }}>
+                                                            <div>Format Rencana Mutu Pekerjaan Konstruksi</div>
+                                                            <Button style={{
+                                                                width: 150,
+                                                                height: 40
+                                                            }} onClick={() => {
+                                                                handleDownload()
+                                                            }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FilePdf size={20} /> Unduh Format </div> </Button>
+                                                        </div>
+                                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                                            <div>Format RPMK</div>
+                                                            <Button style={{
+                                                                width: 150,
+                                                                height: 40
+                                                            }} onClick={() => {
+                                                                handleDownloadRPMK()
+                                                            }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FilePdf size={20} /> Unduh Format </div> </Button>
+                                                        </div>
+                                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                                            <div>Format RKK</div>
+                                                            <Button style={{
+                                                                width: 150,
+                                                                height: 40
+                                                            }} onClick={() => {
+                                                                handleDownloadRKK()
+                                                            }}><div style={{ display: "flex", fontSize: 11, alignItems: "center" }}><FilePdf size={20} /> Unduh Format </div> </Button>
+                                                        </div>
 
                                                     </>
                                                 }
@@ -572,7 +638,7 @@ export default function PackageStep8Page() {
                                                         width: "100%",
                                                         paddingRight: 30
                                                     }}>
-                                                        <Button hidden={listDocument.length > 1} variant="primary" style={{
+                                                        <Button hidden={listDocument.length > 3} variant="primary" style={{
                                                             width: 130
                                                         }} onClick={() => {
                                                             setShowDocumentUploadModal(true);
@@ -609,17 +675,17 @@ export default function PackageStep8Page() {
                                                         </Button>
                                                     </div>
                                                     <div style={{ paddingBottom: 10 }}></div>
-                                                    <Table striped bordered hover>
+                                                    <Table bordered hover>
                                                         <thead >
                                                             <tr>
-                                                                <th style={{ textAlign: "center", verticalAlign: "middle" }}>Nama Dokumen</th>
-                                                                <th style={{ textAlign: "center", verticalAlign: "middle" }}>Status</th>
+                                                                <th style={{ width: 400, textAlign: "center", verticalAlign: "middle" }}>Nama Dokumen</th>
                                                                 <th style={{ textAlign: "center", verticalAlign: "middle" }}>Keterangan</th>
-                                                                <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
-                                                                <th hidden={cookies.userRole !== 4} style={{ width: 130, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
-                                                                <th style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
-                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 1}>Setuju</th>
-                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 4}>Hapus</th>
+                                                                <th style={{ width: 120, textAlign: "center", verticalAlign: "middle" }}>Status</th>
+                                                                <th style={{ width: 85, textAlign: "center", verticalAlign: "middle" }}>Lihat Dokumen</th>
+                                                                <th hidden={cookies.userRole !== 4} style={{ width: 85, textAlign: "center", verticalAlign: 'middle' }}>Edit</th>
+                                                                <th style={{ width: 85, textAlign: "center", verticalAlign: "middle" }}>Unduh</th>
+                                                                <th style={{ width: 85, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 1}>Setuju</th>
+                                                                <th style={{ width: 85, textAlign: "center", verticalAlign: "middle" }} hidden={cookies.userRole !== 4}>Hapus</th>
 
                                                             </tr>
                                                         </thead>
@@ -629,27 +695,28 @@ export default function PackageStep8Page() {
                                                                     return (
                                                                         <tr key={index}>
                                                                             <td>{docs.document_name}</td>
-                                                                            <td>{docs.document_status_name}</td>
                                                                             <td>{docs.description}</td>
-                                                                            <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                            <td style={{ textAlign: "center" }}>{docs.document_status_name}</td>
+                                                                            <td style={{ textAlign: "center", verticalAlign: "top" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setStepDocumentId(docs.id)
                                                                             }}><EyeFill /></Button></td>
-                                                                            <td hidden={cookies.userRole !== 4} style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
-                                                                                setNewDocument(docs)
-                                                                            }}><PencilFill /></Button></td>
+                                                                            <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "top" }}>
+                                                                                <Button disabled={docs.created_by !== cookies.userId || docs.document_status_name === "Disetujui"} style={{ width: 50 }} onClick={() => {
+                                                                                    setNewDocument(docs)
+                                                                                }}><PencilFill /></Button></td>
 
-                                                                            <td style={{ textAlign: "center" }}><Button style={{ width: 50 }} onClick={() => {
+                                                                            <td style={{ textAlign: "center", verticalAlign: "top" }}><Button style={{ width: 50 }} onClick={() => {
                                                                                 setDownloadDocumentId(docs.id)
                                                                             }}><Download /></Button></td>
-                                                                            <td style={{ textAlign: "center" }} hidden={cookies.userRole !== 1}><Button variant="success" style={{ width: 50 }} onClick={() => {
+                                                                            <td style={{ textAlign: "center", verticalAlign: "top" }} hidden={cookies.userRole !== 1}><Button variant="success" style={{ width: 50 }} onClick={() => {
                                                                                 setApproveId(docs.id);
                                                                                 setDocumentStatus(docs.document_status_name)
                                                                                 // if(docs.document_status_name === "Apporved"){
                                                                                 //     
                                                                                 // }
                                                                             }}><CheckLg /></Button></td>
-                                                                            <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "middle" }}>
-                                                                                <Button disabled={docs.document_status_name === "Disetujui"} variant="danger" style={{ width: 50 }} onClick={() => {
+                                                                            <td hidden={cookies.userRole !== 4} style={{ textAlign: "center", verticalAlign: "top" }}>
+                                                                                <Button disabled={docs.document_status_name === "Disetujui" || docs.created_by !== cookies.userId} variant="danger" style={{ width: 50 }} onClick={() => {
                                                                                     if (window.confirm(`Apakah Anda Ingin Menghapus Data Ini?`)) {
                                                                                         setRemoveId(docs.id)
                                                                                     }

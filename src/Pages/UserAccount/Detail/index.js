@@ -10,7 +10,7 @@ import {
 import "../../../App.css"
 import { Container } from "react-bootstrap";
 import {
-    isTokenValid, insertUpdateUserAccount, getUserAccountById, updatePassword
+    isTokenValid, insertUpdateUserAccount, getUserAccountById, updatePassword, getAccountType
 } from "../../../Helpers/ApplicationHelper";
 import Sidebar from "../../../Components/Sidebar";
 import LoadingAnimation from "../../../Components/Loading";
@@ -37,6 +37,7 @@ export default function UserAccountDetailPage() {
     const [disabledButton, setDisabledButton] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
+    const [listAccountType, setListAccountType] = useState([]);
     const [userChangePasswordId, setUserChangePasswordId] = useState("");
     const [modalChangePassword, setModalChangePassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -50,7 +51,9 @@ export default function UserAccountDetailPage() {
         password: "",
         name: "",
         confirmation_password: "",
-        email: ""
+        email: "",
+        user_role: null,
+        account_type: null
     })
 
 
@@ -61,6 +64,7 @@ export default function UserAccountDetailPage() {
                 navigate("/");
             else {
                 setUserId(location.state.userId);
+                loadAccountType();
                 // loadPackage();
                 if (location.state.userId === 0) {
                     setIsLoading(false);
@@ -150,6 +154,8 @@ export default function UserAccountDetailPage() {
                     username: response.username,
                     name: response.name,
                     email: response.email,
+                    user_role:response.user_role,
+                    account_type: response.account_type
                 })
             }
             setIsLoading(false);
@@ -184,6 +190,15 @@ export default function UserAccountDetailPage() {
             } else {
                 alert('Gagal Mengganti Password');
             }
+        } catch (exception) {
+
+        }
+    }
+
+    const loadAccountType = async () => {
+        try {
+            let response = await getAccountType(cookies.token);
+            setListAccountType(response);
         } catch (exception) {
 
         }
@@ -236,7 +251,7 @@ export default function UserAccountDetailPage() {
                             opacity: 0.1,
                             pointerEvents: "none",
                             zIndex: 0,
-                            backgroundColor: "rgba(255, 255, 255, 0.5)" 
+                            backgroundColor: "rgba(255, 255, 255, 0.5)"
                         }}></div>
                         <div style={{
                             display: "flex",
@@ -308,13 +323,41 @@ export default function UserAccountDetailPage() {
                                         paddingBottom: 10
                                     }}>
                                         <Form.Group className="mb3">
-                                            <Form.Label>Nama Penyedia</Form.Label>
+                                            <Form.Label>Nama </Form.Label>
                                             <Form.Control onChange={(e) => {
                                                 setUserAccount({ ...userAccount, name: e.target.value });
                                             }} value={userAccount.name} ></Form.Control>
                                         </Form.Group>
 
                                     </div>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Jabatan</Form.Label>
+                                        <Form.Select onChange={(e) => {
+                                            setUserAccount({ ...userAccount, user_role: e.target.value })
+                                        }} value={userAccount.user_role} required>
+                                            <option value={""} selected disabled></option>
+                                            <option value={1} >PPK</option>
+                                            <option value={2} >PPTK</option>
+                                            <option value={4} >Penyedia</option>
+
+
+                                        </Form.Select>
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Jenis Akun</Form.Label>
+                                        <Form.Select onChange={(e)=>{
+                                            setUserAccount({...userAccount, account_type: e.target.value})
+                                        }} value={userAccount.account_type} required>
+                                            <option value={""} selected disabled></option>
+
+                                            {listAccountType.map((types, index) => {
+                                                return (
+                                                    <option value={types.id} key={index}>{types.type_name}</option>
+                                                )
+                                            })}
+
+                                        </Form.Select>
+                                    </Form.Group>
 
                                     {
                                         location.state.userId === 0 &&
@@ -372,14 +415,14 @@ export default function UserAccountDetailPage() {
                                             display: "flex",
                                             paddingRight: 5
                                         }}>
-                                            <Button disabled={disabledButton} style={{ width: 100, zIndex:999 }} type="submit">Simpan</Button>
+                                            <Button disabled={disabledButton} style={{ width: 100, zIndex: 999 }} type="submit">Simpan</Button>
                                         </div>
                                         <div style={{
                                             display: "flex",
                                             paddingLeft: 5,
                                             paddingRight: 5
                                         }}>
-                                            <Button style={{ width: 100, zIndex:999 }} type="reset" variant="danger" onClick={(e) => {
+                                            <Button style={{ width: 100, zIndex: 999 }} type="reset" variant="danger" onClick={(e) => {
                                                 navigate('/Package')
                                             }}>Batal</Button>
                                         </div>
@@ -390,7 +433,7 @@ export default function UserAccountDetailPage() {
                                                 paddingLeft: 5,
                                                 paddingRight: 5
                                             }}>
-                                                <Button style={{ width: 150 ,zIndex:999 }} type="reset" variant="info" onClick={(e) => {
+                                                <Button style={{ width: 150, zIndex: 999 }} type="reset" variant="info" onClick={(e) => {
                                                     setUserChangePasswordId(location.state.userId);
                                                 }}>Ganti Kata Sandi</Button>
                                             </div>

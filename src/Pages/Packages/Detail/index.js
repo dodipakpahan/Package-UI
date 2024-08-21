@@ -352,7 +352,7 @@ export default function DetailPAckagePage() {
             packagesTmp.hps = packagesTmp.hps ? packagesTmp.hps.replace(/\D/g, '') : null;
 
             console.log(packagesTmp);
-            let response = await insertUpdatePackage(cookies.token, packagesTmp);
+            let response = await insertUpdatePackage(cookies.token, packagesTmp, cookies.accountType);
             if (response.error_code === 0) {
                 alert('Data Berhasil Disimpan');
                 navigate("/Package")
@@ -516,7 +516,7 @@ export default function DetailPAckagePage() {
 
     const ApproveDocument = async () => {
         try {
-            let response = await updatePackageDocumentStatus(cookies.token, packages.command, packageId);
+            let response = await updatePackageDocumentStatus(cookies.token, packages.command, packageId, cookies.accountType);
             if (response.error_code === 0) {
                 alert('Dokumen Telah Disetujui');
                 loadDocumentData();

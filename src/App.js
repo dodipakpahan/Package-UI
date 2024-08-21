@@ -43,6 +43,8 @@ import PackageStep33Page from "./Pages/Packages/PackageStep/Step33";
 import PackageStep34Page from "./Pages/Packages/PackageStep/Step34";
 import UserAccountPage from "./Pages/UserAccount";
 import UserAccountDetailPage from "./Pages/UserAccount/Detail";
+import ChangePasswordPage from "./Pages/ChangePassword";
+import AccountTypePage from "./Pages/AccountType";
 
 export default function App() {
   return (
@@ -91,6 +93,8 @@ export default function App() {
         <Route path="/PackageStep/Step34" element={<PackageStep34Page/>}/>
         <Route path="/UserAccount" element={<UserAccountPage/>}/>
         <Route path="/UserAccount/Detail" element={<UserAccountDetailPage/>}/>
+        <Route path="/ChangePassword" element={<ChangePasswordPage/>}/>
+        <Route path="/AccountType" element={<AccountTypePage/>}/>
 
       </Routes>
     </BrowserRouter>

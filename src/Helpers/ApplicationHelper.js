@@ -24,7 +24,7 @@ export const isTokenValid = async (token) => {
 }
 
 
-export const getPackage = async (token, offset = 0, limit = 10000, orderBy = "package_name", descending, searchQuery, detailedSearch, userRole = 0) => {
+export const getPackage = async (token, offset = 0, limit = 10000, orderBy = "package_name", descending, searchQuery, detailedSearch, userRole = 0, accountType) => {
 
     try {
         let response = await axios.get(`${Config.API_ENDPOINT}/api/Package/findAll`, {
@@ -35,7 +35,8 @@ export const getPackage = async (token, offset = 0, limit = 10000, orderBy = "pa
                 descending: descending,
                 search_query: searchQuery,
                 detailed_search: detailedSearch,
-                user_role: userRole
+                user_role: userRole,
+                account_type: accountType
             },
             headers: {
                 token: token
@@ -53,7 +54,7 @@ export const getPackage = async (token, offset = 0, limit = 10000, orderBy = "pa
     }
 }
 
-export const insertUpdatePackage = async (token, packages) => {
+export const insertUpdatePackage = async (token, packages, accountType) => {
     const payload = {
         id: packages.id,
         package_name: packages.package_name,
@@ -70,7 +71,8 @@ export const insertUpdatePackage = async (token, packages) => {
         supervising_consultant: packages.supervising_consultant,
         contract_number: packages.contract_number,
         upload_document: packages.upload_document,
-        command:packages.command
+        command:packages.command,
+        account_type : accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdate`, payload, {
@@ -134,7 +136,7 @@ export const getPackageById = async (token, packageId) => {
     }
 }
 
-export const getCountPackage = async (token, searchQuery, detailedSearch, userRole = 0) => {
+export const getCountPackage = async (token, searchQuery, detailedSearch, userRole = 0, accountType) => {
     try {
         let response = await axios.get(`${Config.API_ENDPOINT}/api/Package/getCount`, {
             headers: {
@@ -143,7 +145,8 @@ export const getCountPackage = async (token, searchQuery, detailedSearch, userRo
             params: {
                 search_query: searchQuery,
                 detailed_search: detailedSearch,
-                user_role : userRole
+                user_role : userRole,
+                account_type: accountType
             }
         });
         if (response.data.error_code === 0) {
@@ -388,11 +391,12 @@ export const readNotification = async (token, notificationId) => {
 }
 
 
-export const updatePackageDocumentStatus = async (token, command, packageId) => {
+export const updatePackageDocumentStatus = async (token, command, packageId, accountType) => {
     const payload = {
        
         package_id: packageId,
         note: command,
+        account_type: accountType
     }
     console.log(document);
     try {
@@ -484,7 +488,7 @@ export const getPackageStepById = async (token, stepId) => {
 }
 
 
-export const insertUpdatePackageStep1 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep1 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -492,7 +496,8 @@ export const insertUpdatePackageStep1 = async (token, document, packageId, pathN
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type: accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep1`, payload, {
@@ -558,13 +563,14 @@ export const getPackageStep1ById = async (token, packageId) => {
     }
 }
 
-export const updateStep1DocumentStatus = async (token, step) => {
+export const updateStep1DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
-        provider_name: step.provider_name
+        provider_name: step.provider_name,
+        account_type: accountType
     }
     console.log(document);
     try {
@@ -586,7 +592,7 @@ export const updateStep1DocumentStatus = async (token, step) => {
 }
 
 
-export const insertUpdatePackageStep2 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep2 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -595,6 +601,7 @@ export const insertUpdatePackageStep2 = async (token, document, packageId, pathN
         description: document.description,
         package_id: packageId,
         path: pathName,
+        account_type: accountType
         // document_type: document.document_type
     }
     try {
@@ -661,13 +668,14 @@ export const getPackageStep2ById = async (token, packageId) => {
     }
 }
 
-export const updateStep2DocumentStatus = async (token, step) => {
+export const updateStep2DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
+        account_type:accountType
         // document_type: step.document_type
     }
     console.log(document);
@@ -689,7 +697,7 @@ export const updateStep2DocumentStatus = async (token, step) => {
     }
 }
 
-export const insertUpdatePackageStep3 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep3 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -697,7 +705,8 @@ export const insertUpdatePackageStep3 = async (token, document, packageId, pathN
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep3`, payload, {
@@ -763,13 +772,14 @@ export const getPackageStep3ById = async (token, packageId) => {
     }
 }
 
-export const updateStep3DocumentStatus = async (token, step) => {
+export const updateStep3DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
+        account_type: accountType
     }
 
     try {
@@ -792,7 +802,7 @@ export const updateStep3DocumentStatus = async (token, step) => {
 
 
 
-export const insertUpdatePackageStep4 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep4 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -800,7 +810,8 @@ export const insertUpdatePackageStep4 = async (token, document, packageId, pathN
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep4`, payload, {
@@ -915,13 +926,14 @@ export const getPackageStep4Command = async (token, packageStepId) => {
     }
 }
 
-export const updateStep4DocumentStatus = async (token, step) => {
+export const updateStep4DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
-        provider_name: step.provider_name
+        provider_name: step.provider_name,
+        account_type :accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep4`, payload, {
@@ -943,7 +955,7 @@ export const updateStep4DocumentStatus = async (token, step) => {
 
 
 
-export const insertUpdatePackageStep5 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep5 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -951,7 +963,8 @@ export const insertUpdatePackageStep5 = async (token, document, packageId, pathN
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep5`, payload, {
@@ -1045,13 +1058,14 @@ export const updateStep5DocumentStatus = async (token, step) => {
 }
 
 
-export const updateStep6DocumentStatus = async (token, step) => {
+export const updateStep6DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
-        provider_name: step.provider_name
+        provider_name: step.provider_name,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep6`, payload, {
@@ -1072,7 +1086,7 @@ export const updateStep6DocumentStatus = async (token, step) => {
 }
 
 
-export const insertUpdatePackageStep6 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep6 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1081,7 +1095,8 @@ export const insertUpdatePackageStep6 = async (token, document, packageId, pathN
         description: document.description,
         package_id: packageId,
         path: pathName,
-        provider_name: document.provider_name
+        provider_name: document.provider_name,
+        account_type: accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep6`, payload, {
@@ -1148,7 +1163,7 @@ export const getPackageStep6ById = async (token, packageId) => {
 }
 
 
-export const insertUpdatePackageStep7 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep7 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1156,7 +1171,8 @@ export const insertUpdatePackageStep7 = async (token, document, packageId, pathN
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type: accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep7`, payload, {
@@ -1223,7 +1239,7 @@ export const getPackageStep7ById = async (token, packageId) => {
 }
 
 
-export const insertUpdatePackageStep8 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep8 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1232,7 +1248,8 @@ export const insertUpdatePackageStep8 = async (token, document, packageId, pathN
         description: document.description,
         package_id: packageId,
         path: pathName,
-        document_type: document.document_type
+        document_type: document.document_type,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep8`, payload, {
@@ -1299,14 +1316,15 @@ export const getPackageStep8ById = async (token, packageId) => {
 }
 
 
-export const updateStep8DocumentStatus = async (token, step) => {
+export const updateStep8DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
-        document_type: step.document_type
+        document_type: step.document_type,
+        account_type: accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep8`, payload, {
@@ -1326,7 +1344,7 @@ export const updateStep8DocumentStatus = async (token, step) => {
     }
 }
 
-export const insertUpdatePackageStep9 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep9 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1334,7 +1352,8 @@ export const insertUpdatePackageStep9 = async (token, document, packageId, pathN
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type: accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep9`, payload, {
@@ -1402,14 +1421,15 @@ export const getPackageStep9ById = async (token, packageId) => {
 
 
 
-export const updateStep9DocumentStatus = async (token, step) => {
+export const updateStep9DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
-        document_type: step.document_type
+        document_type: step.document_type,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep9`, payload, {
@@ -1429,7 +1449,7 @@ export const updateStep9DocumentStatus = async (token, step) => {
     }
 }
 
-export const insertUpdatePackageStep10 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep10 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1437,7 +1457,8 @@ export const insertUpdatePackageStep10 = async (token, document, packageId, path
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep10`, payload, {
@@ -1504,12 +1525,13 @@ export const getPackageStep10ById = async (token, packageId) => {
 }
 
 
-export const updateStep10DocumentStatus = async (token, step) => {
+export const updateStep10DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
-        path: step.path
+        path: step.path,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep10`, payload, {
@@ -1531,7 +1553,7 @@ export const updateStep10DocumentStatus = async (token, step) => {
 
 
 
-export const insertUpdatePackageStep11 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep11 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1539,7 +1561,8 @@ export const insertUpdatePackageStep11 = async (token, document, packageId, path
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep11`, payload, {
@@ -1560,13 +1583,14 @@ export const insertUpdatePackageStep11 = async (token, document, packageId, path
 }
 
 
-export const updateStep11DocumentStatus = async (token, step) => {
+export const updateStep11DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep11`, payload, {
@@ -1633,7 +1657,7 @@ export const getPackageStep11ById = async (token, packageId) => {
 }
 
 
-export const insertUpdatePackageStep12 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep12 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1645,7 +1669,8 @@ export const insertUpdatePackageStep12 = async (token, document, packageId, path
         description: document.description,
         package_id: packageId,
         path: pathName,
-        document_number: document.document_number
+        document_number: document.document_number,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep12`, payload, {
@@ -1735,7 +1760,7 @@ export const getPackageStep12ById = async (token, packageId) => {
 }
 
 
-export const updateStep12DocumentStatus = async (token, step) => {
+export const updateStep12DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
@@ -1743,7 +1768,8 @@ export const updateStep12DocumentStatus = async (token, step) => {
         path: step.path,
         provider_name: step.provider_name,
         document_type: step.document_type,
-        approvals: step.approvals
+        approvals: step.approvals,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDOcumentStep12`, payload, {
@@ -1765,7 +1791,7 @@ export const updateStep12DocumentStatus = async (token, step) => {
 
 
 
-export const insertUpdatePackageStep13 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep13 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -1773,7 +1799,8 @@ export const insertUpdatePackageStep13 = async (token, document, packageId, path
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep13`, payload, {
@@ -1840,12 +1867,13 @@ export const getPackageStep13ById = async (token, packageId) => {
 }
 
 
-export const updateStep13DocumentStatus = async (token, step) => {
+export const updateStep13DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
-        path: step.path
+        path: step.path,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep13`, payload, {
@@ -2445,7 +2473,7 @@ export const getPackageStep20ById = async (token, packageId) => {
 }
 
 
-export const insertUpdatePackageStep21 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep21 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -2453,7 +2481,8 @@ export const insertUpdatePackageStep21 = async (token, document, packageId, path
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep21`, payload, {
@@ -2520,13 +2549,14 @@ export const getPackageStep21ById = async (token, packageId) => {
 }
 
 
-export const updateStep21DocumentStatus = async (token, step) => {
+export const updateStep21DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
+        account_type: accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep21`, payload, {
@@ -2648,7 +2678,7 @@ export const updateStep22DocumentStatus = async (token, step) => {
 }
 
 
-export const insertUpdatePackageStep23 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep23 = async (token, document, packageId, pathName,accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -2657,7 +2687,8 @@ export const insertUpdatePackageStep23 = async (token, document, packageId, path
         description: document.description,
         package_id: packageId,
         path: pathName,
-        document_type: document.document_type
+        document_type: document.document_type,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep23`, payload, {
@@ -2725,14 +2756,15 @@ export const getPackageStep23ById = async (token, packageId) => {
 
 
 
-export const updateStep23DocumentStatus = async (token, step) => {
+export const updateStep23DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
-        document_type: step.document_type
+        document_type: step.document_type,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateDocumentStep23`, payload, {
@@ -2753,7 +2785,7 @@ export const updateStep23DocumentStatus = async (token, step) => {
 }
 
 
-export const insertUpdatePackageStep24 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep24 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -2761,7 +2793,8 @@ export const insertUpdatePackageStep24 = async (token, document, packageId, path
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep24`, payload, {
@@ -2828,13 +2861,14 @@ export const getPackageStep24ById = async (token, packageId) => {
 }
 
 
-export const updateStep24DocumentStatus = async (token, step) => {
+export const updateStep24DocumentStatus = async (token, step, accountType) => {
     const payload = {
         id: step.id,
         package_step_id: step.package_step_id,
         package_id: step.package_id,
         path: step.path,
         provider_name: step.provider_name,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/updateStep24DocumentStatus`, payload, {
@@ -2855,7 +2889,7 @@ export const updateStep24DocumentStatus = async (token, step) => {
 }
 
 
-export const insertUpdatePackageStep25 = async (token, document, packageId, pathName) => {
+export const insertUpdatePackageStep25 = async (token, document, packageId, pathName, accountType) => {
     const payload = {
         id: document.id,
         url_base64: document.url_base64,
@@ -2863,7 +2897,8 @@ export const insertUpdatePackageStep25 = async (token, document, packageId, path
         package_step_id: document.package_step_id,
         description: document.description,
         package_id: packageId,
-        path: pathName
+        path: pathName,
+        account_type:accountType
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/Package/insertUpdateDocumentStep25`, payload, {
@@ -3656,14 +3691,15 @@ export const getPackageStep34ById = async (token, packageId) => {
     }
 }
 
-export const getCountTotalPackage = async (token, userRole) => {
+export const getCountTotalPackage = async (token, userRole, accountType) => {
     try {
         let response = await axios.get(`${Config.API_ENDPOINT}/api/Package/getCountTotalPackage`, {
             headers: {
                 token: token
             },
             params: {
-                user_role: userRole
+                user_role: userRole,
+                account_type:accountType
             }
         });
         if (response.data.error_code === 0) {
@@ -3679,14 +3715,15 @@ export const getCountTotalPackage = async (token, userRole) => {
 }
 
 
-export const getCountTotalPackageInProgress = async (token, userRole) => {
+export const getCountTotalPackageInProgress = async (token, userRole, accountType) => {
     try {
         let response = await axios.get(`${Config.API_ENDPOINT}/api/Package/getCountTotalPackageInProgress`, {
             headers: {
                 token: token
             },
             params: {
-                user_role: userRole
+                user_role: userRole,
+                account_type:accountType
             }
         });
         if (response.data.error_code === 0) {
@@ -3702,14 +3739,15 @@ export const getCountTotalPackageInProgress = async (token, userRole) => {
 }
 
 
-export const getCountTotalPackageComplete = async (token, userRole) => {
+export const getCountTotalPackageComplete = async (token, userRole, accountType) => {
     try {
         let response = await axios.get(`${Config.API_ENDPOINT}/api/Package/getCountTotalPackageComplete`, {
             headers: {
                 token: token
             },
             params: {
-                user_role: userRole
+                user_role: userRole,
+                account_type:accountType
             }
         });
         if (response.data.error_code === 0) {
@@ -3760,7 +3798,9 @@ export const insertUpdateUserAccount = async (token, userAccount) => {
         username: userAccount.username,
         password: userAccount.password,
         email: userAccount.email,
-        name: userAccount.name
+        name: userAccount.name,
+        user_role: userAccount.user_role,
+        account_type: userAccount.account_type
     }
     try {
         let response = await axios.post(`${Config.API_ENDPOINT}/api/UserAccount/insertUpdate`, payload, {
@@ -3913,5 +3953,124 @@ export const getDetailPackage = async (token, packageId) => {
     catch (exception) {
         console.log(exception);
         return ([]);
+    }
+}
+
+
+export const getAccountType = async (token, offset = 0, limit = 10000, orderBy = "type_name", descending, searchQuery, detailedSearch) => {
+
+    try {
+        let response = await axios.get(`${Config.API_ENDPOINT}/api/UserAccount/findAllAccountType`, {
+            params: {
+                offset: offset * limit,
+                limit: limit,
+                order_by: orderBy,
+                descending: descending,
+                search_query: searchQuery,
+                detailed_search: detailedSearch
+            },
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.data);
+        } else {
+            return ([]);
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
+export const insertUpdateAccountType = async (token, accountType) => {
+    const payload = {
+        id: accountType.id,
+        type_name: accountType.type_name,
+    }
+    try {
+        let response = await axios.post(`${Config.API_ENDPOINT}/api/UserAccount/insertUpdateAccountType`, payload, {
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data)
+        } else {
+            return ([])
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
+export const deleteAccountType = async (token, typeId) => {
+    const payload = {
+        id: typeId
+    }
+    try {
+        let response = await axios.post(`${Config.API_ENDPOINT}/api/UserAccount/deleteAccountType`, payload, {
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.error_code)
+        } else {
+            return ([])
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
+export const getAccountTypeById = async (token, typeId) => {
+    try {
+        let response = await axios.get(`${Config.API_ENDPOINT}/api/UserAccount/findByIdAccountType`, {
+            params: {
+                id: typeId
+            },
+            headers: {
+                token: token
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.data[0]);
+        } else {
+            return ([]);
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return ([]);
+    }
+}
+
+export const getCountAccountType = async (token, searchQuery, detailedSearch) => {
+    try {
+        let response = await axios.get(`${Config.API_ENDPOINT}/api/UserAccount/getCountAccountType`, {
+            headers: {
+                token: token
+            },
+            params: {
+                search_query: searchQuery,
+                detailed_search: detailedSearch
+            }
+        });
+        if (response.data.error_code === 0) {
+            return (response.data.data);
+        } else {
+            return (0);
+        }
+    }
+    catch (exception) {
+        console.log(exception);
+        return (0);
     }
 }
